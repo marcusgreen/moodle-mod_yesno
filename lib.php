@@ -2,23 +2,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Add a new yesno instance
- *
- * @param object $data
- * @param object $mform
- * @return int new yesno instance id
- */
-function yesno_add_instance($data, $mform = null) {
-    global $DB;
-
-    $data->timemodified = time();
-    
-    // Insert the new record
-    $id = $DB->insert_record('yesno', $data);
-    
-    return $id;
-}
 
 /**
  * Update a yesno instance
@@ -71,39 +54,4 @@ function yesno_add_instance($yesno) {
     return $DB->insert_record('yesno', $yesno);
 }
 
-/**
- * Given an object containing all the necessary data,
- * (defined by the form in mod_form.php) this function
- * will update an existing instance with new data.
- *
- * @param object $yesno
- * @return bool
- */
-function yesno_update_instance($yesno) {
-    global $DB;
-    
-    $yesno->timemodified = time();
-    $yesno->id = $yesno->instance;
-    
-    return $DB->update_record('yesno', $yesno);
-}
 
-/**
- * Given an ID of an instance of this module,
- * this function will permanently delete the instance
- * and any data that depends on it.
- *
- * @param int $id
- * @return bool
- */
-function yesno_delete_instance($id) {
-    global $DB;
-    
-    if (!$yesno = $DB->get_record('yesno', array('id' => $id))) {
-        return false;
-    }
-    
-    $DB->delete_records('yesno', array('id' => $yesno->id));
-    
-    return true;
-}
