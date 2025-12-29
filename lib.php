@@ -18,7 +18,7 @@
  * Library functions for the yesno module.
  *
  * @package    mod_yesno
- * @copyright  2024 Your Name
+ * @copyright  2024 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -38,6 +38,14 @@ function yesno_update_instance($data, $mform = null) {
 
     $data->timemodified = time();
     $data->id = $data->instance;
+
+    // Handle editor fields - they come as arrays with 'text' and 'format'
+    if (isset($data->clue) && is_array($data->clue)) {
+        $data->clue = $data->clue['text'];
+    }
+    if (isset($data->system_prompt) && is_array($data->system_prompt)) {
+        $data->system_prompt = $data->system_prompt['text'];
+    }
 
     // Updating the record.
     $result = $DB->update_record('yesno', $data);
@@ -75,6 +83,14 @@ function yesno_add_instance($yesno) {
     global $DB;
 
     $yesno->timecreated = time();
+
+    // Handle editor fields - they come as arrays with 'text' and 'format'
+    if (isset($yesno->clue) && is_array($yesno->clue)) {
+        $yesno->clue = $yesno->clue['text'];
+    }
+    if (isset($yesno->system_prompt) && is_array($yesno->system_prompt)) {
+        $yesno->system_prompt = $yesno->system_prompt['text'];
+    }
 
     return $DB->insert_record('yesno', $yesno);
 }

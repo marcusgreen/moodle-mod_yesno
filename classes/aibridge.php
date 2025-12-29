@@ -20,7 +20,7 @@ namespace quiz_aitext;
  * AI Bridge class for handling LLM requests through different backends.
  *
  * @package    mod_yesno
- * @copyright  2025 Your Name
+ * @copyright  2025 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class aibridge {

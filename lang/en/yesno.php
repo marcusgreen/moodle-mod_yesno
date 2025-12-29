@@ -17,7 +17,7 @@
 /**
  * String for component 'yesno', language 'en', key 'modulename'
  *
- * @copyright  2024 Your Name
+ * @copyright  2024 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package mod_yesno
  */
@@ -33,6 +33,24 @@ $string['systemprompt'] = 'System prompt';
 $string['systemprompt_help'] = 'Instructions for the LLM that will be used to guide the game.';
 $string['maxcharacters'] = 'Maximum characters per question';
 $string['maxcharacters_help'] = 'The maximum number of characters students can enter for each question.';
+$string['maxgrade'] = 'Maximum grade';
+$string['maxgrade_help'] = 'The maximum grade that can be achieved for this activity.';
+$string['askquestion'] = 'Ask a question';
+$string['yourquestion'] = 'Your question';
+$string['enteryourquestion'] = 'Enter your yes/no question here...';
+$string['submitquestion'] = 'Submit question';
+$string['charlimitinfo'] = 'You can ask questions with up to {$a} characters.';
+$string['attemptsinfo'] = 'You have asked {$a->count} out of {$a->max} questions.';
+$string['charsremaining'] = 'Characters remaining: {$a->remaining}/{$a->max}';
+$string['clue'] = 'Clue for students';
+$string['clue_help'] = 'An optional clue or hint to help students with the game. This will be displayed to students.';
 $string['viewmsg'] = 'You can view this activity.';
 $string['yesnoname'] = 'Activity name';
 $string['yesnoname_help'] = 'The name of this Twenty Questions activity';
+$string['studentquestionprefix'] = 'Student question';
+$string['airesponse'] = 'AI Response';
+$string['errorgettingresponse'] = 'Error getting AI response';
+$string['maxquestionsreached'] = 'You have reached the maximum number of questions allowed for this activity.';
+$string['conversationhistory'] = 'Conversation History';
+$string['defaultsystemprompt'] = 'Default System Prompt';
+$string['defaultsystemprompt_desc'] = 'This is the default system prompt that will be used for new Twenty Questions activities. The prompt will guide the AI in playing the 20 Questions game. You can customize this for specific activities when creating them.';
