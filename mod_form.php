@@ -30,7 +30,6 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
  * Module instance settings form
  */
 class mod_yesno_mod_form extends moodleform_mod {
-
     /**
      * Defines forms elements
      */
@@ -39,12 +38,11 @@ class mod_yesno_mod_form extends moodleform_mod {
 
         $mform = $this->_form;
 
-        //-------------------------------------------------------------------------------
-        // Adding the "general" fieldset, where all the common settings are showed
+        // Adding the "general" fieldset, where all the common settings are shown.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        // Adding the standard "name" field
-        $mform->addElement('text', 'name', get_string('yesnoname', 'yesno'), array('size' => '64'));
+        // Adding the standard "name" field.
+        $mform->addElement('text', 'name', get_string('yesnoname', 'yesno'), ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -54,15 +52,26 @@ class mod_yesno_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('name', 'yesnoname', 'yesno');
 
-        // Adding the optional "intro" and "introformat" pair of fields
+        // Adding the optional "intro" and "introformat" pair of fields.
         $this->standard_intro_elements();
 
-        //-------------------------------------------------------------------------------
-        // Add standard elements, common to all modules
+        // Adding the system prompt field.
+        $mform->addElement('textarea', 'system_prompt', get_string('systemprompt', 'yesno'), ['rows' => 10, 'cols' => 60]);
+        $mform->setType('system_prompt', PARAM_TEXT);
+        $mform->addHelpButton('system_prompt', 'systemprompt', 'yesno');
+
+        // Adding the max characters field.
+        $mform->addElement('text', 'max_characters', get_string('maxcharacters', 'yesno'), ['size' => '6']);
+        $mform->setType('max_characters', PARAM_INT);
+        $mform->setDefault('max_characters', 200);
+        $mform->addRule('max_characters', null, 'numeric', null, 'client');
+        $mform->addRule('max_characters', get_string('maximumchars', '', 1000), 'maxlength', 4, 'client');
+        $mform->addHelpButton('max_characters', 'maxcharacters', 'yesno');
+
+        // Adding standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
-        //-------------------------------------------------------------------------------
-        // Add standard buttons, common to all modules
+        // Adding standard buttons, common to all modules.
         $this->add_action_buttons();
     }
 }

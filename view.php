@@ -33,11 +33,11 @@ $id = optional_param('id', 0, PARAM_INT);
 $y = optional_param('y', 0, PARAM_INT);
 
 if ($id) {
-    list($course, $cm) = get_course_and_cm_from_cmid($id, 'yesno');
-    $yesno = $DB->get_record('yesno', array('id' => $cm->instance), '*', MUST_EXIST);
+    [$course, $cm] = get_course_and_cm_from_cmid($id, 'yesno');
+    $yesno = $DB->get_record('yesno', ['id' => $cm->instance], '*', MUST_EXIST);
 } else if ($y) {
-    $yesno = $DB->get_record('yesno', array('id' => $y), '*', MUST_EXIST);
-    list($course, $cm) = get_course_and_cm_from_instance($y, 'yesno');
+    $yesno = $DB->get_record('yesno', ['id' => $y], '*', MUST_EXIST);
+    [$course, $cm] = get_course_and_cm_from_instance($y, 'yesno');
 } else {
     throw new moodle_exception('missingparameter');
 }
@@ -45,7 +45,7 @@ if ($id) {
 $modulecontext = context_module::instance($cm->id);
 
 require_login($course, true, $cm);
-$PAGE->set_url('/mod/yesno/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/yesno/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($yesno->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
@@ -71,9 +71,10 @@ if ($canmanage) {
 }
 
 // Add some basic styling
-echo html_writer::tag('div', 
-    get_string('activitydescription', 'yesno'), 
-    array('class' => 'yesno-description')
+echo html_writer::tag(
+    'div',
+    get_string('activitydescription', 'yesno'),
+    ['class' => 'yesno-description']
 );
 
 echo $OUTPUT->footer();

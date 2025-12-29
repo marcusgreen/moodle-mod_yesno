@@ -19,7 +19,7 @@ namespace quiz_aitext;
 /**
  * AI Bridge class for handling LLM requests through different backends.
  *
- * @package    quiz_aitext
+ * @package    mod_yesno
  * @copyright  2025 Your Name
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
