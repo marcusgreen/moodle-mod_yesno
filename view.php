@@ -97,24 +97,7 @@ echo html_writer::start_tag('div', ['class' => 'yesno-attempt-info']);
 echo html_writer::tag('p', get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->maxquestions]));
 echo html_writer::end_tag('div');
 
-// Display conversation history if available.
-if ($userattempt && !empty($userattempt->history)) {
-    $history = json_decode($userattempt->history, true);
-    if (is_array($history) && count($history) > 0) {
-        echo html_writer::start_tag('div', ['class' => 'yesno-conversation-history']);
-        echo html_writer::tag('h4', get_string('conversationhistory', 'yesno'));
 
-        foreach ($history as $item) {
-            echo html_writer::start_tag('div', ['class' => 'history-item']);
-            echo html_writer::tag('p', '<strong>' . get_string('yourquestion', 'yesno') . ':</strong> ' . s($item['question']));
-            echo html_writer::tag('p', '<strong>' . get_string('airesponse', 'yesno') . ':</strong> ' . s($item['response']));
-            echo html_writer::tag('p', '<small>' . userdate($item['timestamp']) . '</small>', ['class' => 'history-timestamp']);
-            echo html_writer::end_tag('div');
-        }
-
-        echo html_writer::end_tag('div');
-    }
-}
 
 // Student question input form.
 echo html_writer::start_tag('div', ['class' => 'yesno-question-form']);
@@ -232,6 +215,9 @@ $PAGE->requires->js_call_amd('mod_yesno/charcounter', 'init');
 if ($userattempt && !empty($userattempt->history)) {
     $history = json_decode($userattempt->history, true);
     if (is_array($history) && count($history) > 0) {
+        // Reverse the history array to show most recent responses at the top
+        $history = array_reverse($history);
+        
         echo html_writer::start_tag('div', ['class' => 'yesno-conversation-history']);
         echo html_writer::tag('h4', get_string('conversationhistory', 'yesno'));
         
