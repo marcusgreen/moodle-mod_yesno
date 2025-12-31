@@ -92,48 +92,12 @@ if ($userattempt) {
     $questioncount = $userattempt->question_count;
 }
 
-// Display attempt information.
-echo html_writer::start_tag('div', ['class' => 'yesno-attempt-info']);
-echo html_writer::tag('p', get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->maxquestions]));
-echo html_writer::end_tag('div');
+// Display attempt information using mustache template.
+echo yesno_render_attempt_info($yesno, $questioncount, $modulecontext);
 
 
-
-// Student question input form.
-echo html_writer::start_tag('div', ['class' => 'yesno-question-form']);
-echo html_writer::tag('h3', get_string('askquestion', 'yesno'));
-
-// Display the character limit information.
-$maxchars = $yesno->max_characters;
-echo html_writer::tag('p', get_string('charlimitinfo', 'yesno', $maxchars), ['class' => 'char-limit-info']);
-echo html_writer::tag('p', get_string('charsremaining', 'yesno', ['remaining' => $maxchars, 'max' => $maxchars]),
-    ['class' => 'char-counter', 'id' => 'char-counter']);
-
-// Question input form.
-echo html_writer::start_tag('form', ['method' => 'post', 'action' => $PAGE->url->out(), 'class' => 'question-form']);
-echo html_writer::tag('input', '', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
-echo html_writer::start_tag('div', ['class' => 'form-group']);
-echo html_writer::tag('label', get_string('yourquestion', 'yesno'), ['for' => 'student_question']);
-echo html_writer::tag('textarea', '', [
-    'id' => 'student_question',
-    'name' => 'student_question',
-    'class' => 'form-control',
-    'rows' => 3,
-    'maxlength' => $maxchars,
-    'placeholder' => get_string('enteryourquestion', 'yesno'),
-    'required' => 'required'
-]);
-echo html_writer::end_tag('div');
-
-echo html_writer::start_tag('div', ['class' => 'form-group']);
-echo html_writer::tag('button', get_string('submitquestion', 'yesno'), [
-    'type' => 'submit',
-    'class' => 'btn btn-primary'
-]);
-echo html_writer::end_tag('div');
-
-echo html_writer::end_tag('form'); // Close form
-echo html_writer::end_tag('div'); // Close question-form
+// Student question input form using mustache template.
+echo yesno_render_question_form($yesno, $modulecontext);
 
 // Handle form submission.
 $studentquestion = optional_param('student_question', '', PARAM_TEXT);

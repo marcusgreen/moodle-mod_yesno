@@ -70,6 +70,26 @@ function yesno_delete_instance($id) {
 }
 
 /**
+ * Render attempt information using mustache template
+ *
+ * @param object $yesno
+ * @param int $questioncount
+ * @param context_module $modulecontext
+ * @return string HTML output of attempt information
+ * @package mod_yesno
+ */
+function yesno_render_attempt_info($yesno, $questioncount, $modulecontext) {
+    global $OUTPUT;
+
+    $data = [
+        'has_attempt_info' => true,
+        'attempt_info_text' => get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->maxquestions])
+    ];
+
+    return $OUTPUT->render_from_template('mod_yesno/attempt_info', $data);
+}
+
+/**
  * Render conversation history using mustache template
  *
  * @param object $userattempt
@@ -79,19 +99,19 @@ function yesno_delete_instance($id) {
  */
 function yesno_render_conversation_history($userattempt, $modulecontext) {
     global $OUTPUT;
-    
+
     if (!$userattempt || empty($userattempt->history)) {
         return '';
     }
-    
+
     $history = json_decode($userattempt->history, true);
     if (!is_array($history) || count($history) === 0) {
         return '';
     }
-    
+
     // Reverse the history array to show most recent responses at the top
     $history = array_reverse($history);
-    
+
     $history_items = [];
     foreach ($history as $item) {
         $history_items[] = [
@@ -100,7 +120,7 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
             'timestamp' => userdate($item['timestamp'])
         ];
     }
-    
+
     $data = [
         'has_history' => true,
         'conversation_history_title' => get_string('conversationhistory', 'yesno'),
@@ -108,8 +128,38 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
         'ai_response_label' => get_string('airesponse', 'yesno'),
         'history_items' => $history_items
     ];
-    
+
     return $OUTPUT->render_from_template('mod_yesno/conversation_history', $data);
+}
+
+/**
+ * Render question form using mustache template
+ *
+ * @param object $yesno
+ * @param context_module $modulecontext
+ * @return string HTML output of question form
+ * @package mod_yesno
+ */
+function yesno_render_question_form($yesno, $modulecontext) {
+    global $OUTPUT;
+
+    $data = [
+        'ask_question_title' => get_string('askquestion', 'yesno'),
+        'char_limit_info' => true,
+        'char_limit_info_text' => get_string('charlimitinfo', 'yesno', $yesno->max_characters),
+        'char_counter_text' => get_string('charsremaining', 'yesno', [
+            'remaining' => $yesno->max_characters,
+            'max' => $yesno->max_characters
+        ]),
+        'form_action' => $modulecontext->get_url()->out(),
+        'sesskey' => sesskey(),
+        'your_question_label' => get_string('yourquestion', 'yesno'),
+        'max_characters' => $yesno->max_characters,
+        'enter_question_placeholder' => get_string('enteryourquestion', 'yesno'),
+        'submit_button_text' => get_string('submitquestion', 'yesno')
+    ];
+
+    return $OUTPUT->render_from_template('mod_yesno/question_form', $data);
 }
 
 /**
