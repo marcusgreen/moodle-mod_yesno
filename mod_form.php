@@ -55,16 +55,12 @@ class mod_yesno_mod_form extends moodleform_mod {
         // Adding the optional "intro" and "introformat" pair of fields.
         $this->standard_intro_elements();
 
-        // Adding the system prompt field.
-        $mform->addElement('textarea', 'system_prompt', get_string('systemprompt', 'yesno'), ['rows' => 10, 'cols' => 60]);
-        $mform->setType('system_prompt', PARAM_TEXT);
-        $mform->addHelpButton('system_prompt', 'systemprompt', 'yesno');
-        xdebug_break();
-        // Set default value from settings
-        $defaultprompt = get_config('yesno', 'defaultprompt');
-        if ($defaultprompt !== false) {
-            $mform->setDefault('system_prompt', $defaultprompt);
-        }
+        // Adding the secret field.
+        $mform->addElement('textarea', 'secret', get_string('secret', 'yesno'), ['rows' => '3', 'cols' => '60']);
+        $mform->setType('secret', PARAM_TEXT);
+        $mform->addRule('secret', null, 'required', null, 'client');
+        $mform->addRule('secret', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->addHelpButton('secret', 'secret', 'yesno');
 
         // Adding the max characters field.
         $mform->addElement('text', 'max_characters', get_string('maxcharacters', 'yesno'), ['size' => '6']);
@@ -101,14 +97,6 @@ class mod_yesno_mod_form extends moodleform_mod {
      */
     public function data_preprocessing(&$defaultvalues) {
         global $CFG;
-
-        // Set default system prompt if not already set
-        if (empty($defaultvalues['system_prompt'])) {
-            $defaultprompt = get_config('yesno', 'defaultsystemprompt');
-            if ($defaultprompt !== false) {
-                $defaultvalues['system_prompt'] = $defaultprompt;
-            }
-        }
 
         // Preprocess the clue field (editor field)
         if (!empty($defaultvalues['clue'])) {

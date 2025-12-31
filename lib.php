@@ -92,5 +92,10 @@ function yesno_add_instance($yesno) {
         $yesno->system_prompt = $yesno->system_prompt['text'];
     }
 
+    // Set default prompt if not provided
+    if (empty($yesno->system_prompt)) {
+        $yesno->system_prompt = get_config('mod_yesno', 'defaultprompt');
+    }
+
     return $DB->insert_record('yesno', $yesno);
 }

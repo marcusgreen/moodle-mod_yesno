@@ -54,3 +54,7 @@ $string['maxquestionsreached'] = 'You have reached the maximum number of questio
 $string['conversationhistory'] = 'Conversation History';
 $string['defaultsystemprompt'] = 'Default System Prompt';
 $string['defaultsystemprompt_desc'] = 'This is the default system prompt that will be used for new Twenty Questions activities. The prompt will guide the AI in playing the 20 Questions game. You can customize this for specific activities when creating them.';
+$string['defaultprompt'] = 'Default prompt';
+$string['defaultprompt_desc'] = 'Default prompt for the AI system.';
+$string['secret'] = 'Secret';
+$string['secret_help'] = 'The secret that students need to guess in the Twenty Questions game.';
