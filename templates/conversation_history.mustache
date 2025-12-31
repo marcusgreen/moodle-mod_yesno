@@ -1,0 +1,16 @@
+{{!
+    Conversation history template for yesno module
+    Renders the history of questions and AI responses
+}}
+{{#has_history}}
+<div class="yesno-conversation-history">
+    <h4>{{conversation_history_title}}</h4>
+    {{#history_items}}
+    <div class="history-item">
+        <p><strong>{{your_question_label}}:</strong> {{{question}}}</p>
+        <p><strong>{{ai_response_label}}:</strong> {{{response}}}</p>
+        <p><small>{{timestamp}}</small></p>
+    </div>
+    {{/history_items}}
+</div>
+{{/has_history}}

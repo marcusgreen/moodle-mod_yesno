@@ -70,6 +70,49 @@ function yesno_delete_instance($id) {
 }
 
 /**
+ * Render conversation history using mustache template
+ *
+ * @param object $userattempt
+ * @param context_module $modulecontext
+ * @return string HTML output of conversation history
+ * @package mod_yesno
+ */
+function yesno_render_conversation_history($userattempt, $modulecontext) {
+    global $OUTPUT;
+    
+    if (!$userattempt || empty($userattempt->history)) {
+        return '';
+    }
+    
+    $history = json_decode($userattempt->history, true);
+    if (!is_array($history) || count($history) === 0) {
+        return '';
+    }
+    
+    // Reverse the history array to show most recent responses at the top
+    $history = array_reverse($history);
+    
+    $history_items = [];
+    foreach ($history as $item) {
+        $history_items[] = [
+            'question' => format_text($item['question'], FORMAT_PLAIN),
+            'response' => format_text($item['response'], FORMAT_PLAIN),
+            'timestamp' => userdate($item['timestamp'])
+        ];
+    }
+    
+    $data = [
+        'has_history' => true,
+        'conversation_history_title' => get_string('conversationhistory', 'yesno'),
+        'your_question_label' => get_string('yourquestion', 'yesno'),
+        'ai_response_label' => get_string('airesponse', 'yesno'),
+        'history_items' => $history_items
+    ];
+    
+    return $OUTPUT->render_from_template('mod_yesno/conversation_history', $data);
+}
+
+/**
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will create a new instance and return the id number
