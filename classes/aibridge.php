@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace quiz_aitext;
+namespace mod_yesno;
 
 /**
  * AI Bridge class for handling LLM requests through different backends.
@@ -23,7 +23,7 @@ namespace quiz_aitext;
  * @copyright  2025 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class aibridge {
+class AiBridge {
     /** @var int The context ID for AI requests */
     private $contextid;
 
@@ -51,7 +51,7 @@ class aibridge {
         }
         $backend = get_config('qtype_aitext', 'backend');
         if ($backend == 'local_ai_manager') {
-            $manager = new local_ai_manager\manager($purpose);
+            $manager = new \local_ai_manager\manager($purpose);
             $llmresponse = (object) $manager->perform_request($prompt, 'qtype_aitext', $this->contextid);
             if ($llmresponse->get_code() !== 200) {
                 throw new moodle_exception(
@@ -88,7 +88,7 @@ class aibridge {
             return $responsedata['generatedcontent'];
         } else if ($backend == 'tool_aimanager') {
             if (class_exists('\tool_aiconnect\ai\ai')) {
-                $ai = new tool_aiconnect\ai\ai();
+                $ai = new \tool_aiconnect\ai\ai();
                 $llmresponse = $ai->prompt_completion($prompt);
                 return $llmresponse['response']['choices'][0]['message']['content'];
             } else {
