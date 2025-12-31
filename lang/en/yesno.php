@@ -17,7 +17,7 @@
 /**
  * String for component 'yesno', language 'en', key 'modulename'
  *
- * @copyright  2024 Marcus Green
+ * @copyright  2025 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package mod_yesno
  */

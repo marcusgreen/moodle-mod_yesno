@@ -18,7 +18,7 @@
  * Library functions for the yesno module.
  *
  * @package    mod_yesno
- * @copyright  2024 Marcus Green
+ * @copyright  2025 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -112,9 +112,9 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
     // Reverse the history array to show most recent responses at the top
     $history = array_reverse($history);
 
-    $history_items = [];
+    $historyitems = [];
     foreach ($history as $item) {
-        $history_items[] = [
+        $historyitems[] = [
             'question' => format_text($item['question'], FORMAT_PLAIN),
             'response' => format_text($item['response'], FORMAT_PLAIN),
             'timestamp' => userdate($item['timestamp'])
@@ -126,7 +126,7 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
         'conversation_history_title' => get_string('conversationhistory', 'yesno'),
         'your_question_label' => get_string('yourquestion', 'yesno'),
         'ai_response_label' => get_string('airesponse', 'yesno'),
-        'history_items' => $history_items
+        'history_items' => $historyitems
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/conversation_history', $data);
