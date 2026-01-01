@@ -74,16 +74,45 @@ function yesno_delete_instance($id) {
  *
  * @param object $yesno
  * @param int $questioncount
+ * @param int $score
  * @param context_module $modulecontext
+ * @param object $userattempt
  * @return string HTML output of attempt information
  * @package mod_yesno
  */
-function yesno_render_attempt_info($yesno, $questioncount, $modulecontext) {
+function yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt) {
     global $OUTPUT;
+
+    // Ensure score is a valid integer
+    $score = is_numeric($score) ? (int)$score : 0;
+
+    // Determine if game is finished
+    $gamefinished = false;
+    $finalscore = 0;
+    $gamestatus = 'active';
+    
+    if ($userattempt) {
+        $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
+        $finalscore = $userattempt->score;
+        $gamestatus = $userattempt->status;
+    }
 
     $data = [
         'has_attempt_info' => true,
-        'attempt_info_text' => get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->maxquestions])
+        'attempt_info_text' => get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->maxquestions]),
+        'score' => $score,
+        'max_score' => $yesno->max_grade,
+        'show_score' => ($score > 0 && $gamefinished),
+        'game_finished' => $gamefinished,
+        'final_score' => $finalscore,
+        'game_status' => $gamestatus,
+        'is_win' => ($gamestatus === 'win'),
+        'is_loss' => ($gamestatus === 'loss'),
+        'game_over_message' => $gamefinished ? 
+            ($gamestatus === 'win' ? 
+                get_string('gamewon', 'yesno', ['score' => $finalscore, 'max' => $yesno->max_grade]) :
+                get_string('gamelost', 'yesno')
+            ) : ''
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/attempt_info', $data);

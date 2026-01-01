@@ -86,18 +86,30 @@ $userattempt = $DB->get_record('yesno_attempts', [
     'yesnoid' => $yesno->id
 ]);
 
-// Initialize question count.
+// Initialize question count and check game status.
 $questioncount = 0;
+$score = 0;
+$gamefinished = false;
+
 if ($userattempt) {
     $questioncount = $userattempt->question_count;
+    // Handle case where score field doesn't exist yet (before database upgrade)
+    $score = isset($userattempt->score) ? $userattempt->score : 0;
+    $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
 }
 
 // Display attempt information using mustache template.
-echo yesno_render_attempt_info($yesno, $questioncount, $modulecontext);
+echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
 
 
 // Student question input form using mustache template.
-echo yesno_render_question_form($yesno, $modulecontext);
+if (!$gamefinished) {
+    echo yesno_render_question_form($yesno, $modulecontext);
+} else {
+    echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
+    echo html_writer::tag('p', get_string('gamefinishedmsg', 'yesno'));
+    echo html_writer::end_tag('div');
+}
 
 // Handle form submission.
 $studentquestion = optional_param('student_question', '', PARAM_TEXT);
@@ -105,71 +117,103 @@ $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 if (!empty($studentquestion) && confirm_sesskey()) {
     require_sesskey();
 
-    // Check if user has remaining attempts.
-    xdebug_break();
-    if ($questioncount < $yesno->maxquestions) {
-            try {
-                // Combine student question with system prompt.
-                $combinedprompt = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt) . "\n\n" . get_string('studentquestionprefix', 'yesno') . ": " . $studentquestion;
+    // Check if user has remaining attempts and game is not finished.
+    if ($questioncount < $yesno->maxquestions && !$gamefinished) {
+        try {
+            // Combine student question with system prompt.
+            $combinedprompt = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt) . "\n\n" . get_string('studentquestionprefix', 'yesno') . ": " . $studentquestion;
 
-                // Use the AI bridge to get response.
-                require_once(__DIR__ . '/classes/aibridge.php');
-                $aibridge = new \quiz_aitext\aibridge($modulecontext->id);
-                $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
+            // Use the AI bridge to get response.
+            require_once(__DIR__ . '/classes/aibridge.php');
+            $aibridge = new \quiz_aitext\aibridge($modulecontext->id);
+            $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
 
-                // Update attempt record.
-                $attemptdata = new stdClass();
-                $attemptdata->userid = $USER->id;
-                $attemptdata->yesnoid = $yesno->id;
-                $attemptdata->question_count = $questioncount + 1;
-                $attemptdata->timemodified = time();
+            // Update attempt record.
+            $attemptdata = new stdClass();
+            $attemptdata->userid = $USER->id;
+            $attemptdata->yesnoid = $yesno->id;
+            $attemptdata->question_count = $questioncount + 1;
+            $attemptdata->timemodified = time();
 
-                // Initialize history if this is the first attempt.
-                $history = [];
-                if ($userattempt && !empty($userattempt->history)) {
-                    $history = json_decode($userattempt->history, true);
-                }
-
-                // Add current question and response to history.
-                $history[] = [
-                    'question' => $studentquestion,
-                    'response' => $airesponse,
-                    'timestamp' => time()
-                ];
-
-                $attemptdata->history = json_encode($history);
-
-                // Save or update the attempt record.
-                if ($userattempt) {
-                    $attemptdata->id = $userattempt->id;
-                    $DB->update_record('yesno_attempts', $attemptdata);
-                } else {
-                    $DB->insert_record('yesno_attempts', $attemptdata);
-                }
-
-                // Refresh the attempt data.
-                $userattempt = $DB->get_record('yesno_attempts', [
-                    'userid' => $USER->id,
-                    'yesnoid' => $yesno->id
-                ]);
-                $questioncount = $userattempt->question_count;
-
-                // Display the AI response.
-                echo html_writer::start_tag('div', ['class' => 'yesno-ai-response']);
-                echo html_writer::tag('h4', get_string('airesponse', 'yesno'));
-                echo html_writer::tag('p', s($airesponse));
-                echo html_writer::end_tag('div');
-
-            } catch (Exception $e) {
-                echo html_writer::start_tag('div', ['class' => 'alert alert-danger']);
-                echo html_writer::tag('p', get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage());
-                echo html_writer::end_tag('div');
+            // Initialize history if this is the first attempt.
+            $history = [];
+            if ($userattempt && !empty($userattempt->history)) {
+                $history = json_decode($userattempt->history, true);
             }
-        } else {
-            echo html_writer::start_tag('div', ['class' => 'alert alert-warning']);
-            echo html_writer::tag('p', get_string('maxquestionsreached', 'yesno'));
+
+            // Add current question and response to history.
+            $history[] = [
+                'question' => $studentquestion,
+                'response' => $airesponse,
+                'timestamp' => time()
+            ];
+
+            // Calculate score based on the number of questions asked
+            // If they guess the correct answer, marks = max_grade - (attempts - 1)
+            // If they run out of attempts without guessing correctly, score = 0
+            $maxscore = $yesno->max_grade;
+            $currentquestion = count($history);
+
+            // Check if the AI response indicates the target word was found
+            // This is a simple check - in a real implementation, you might want
+            // to make this more sophisticated based on your AI response format
+            $airesponselower = strtolower($airesponse);
+            $targetwordlower = strtolower($yesno->secret);
+            $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
+
+            if ($iscorrect) {
+                // If correct answer found, calculate proportional score
+                // Score = max_grade - (number of attempts - 1)
+                $score = max(0, $maxscore - ($currentquestion - 1));
+                $attemptdata->status = 'win';
+            } else if ($currentquestion >= $yesno->maxquestions) {
+                // If no correct answer and max questions reached, score = 0.
+                $score = 0;
+                $attemptdata->status = 'loss';
+            } else {
+                // Game still active, no score yet
+                $score = 0;
+                $attemptdata->status = 'active';
+            }
+
+            // Set the score in the attempt data
+            $attemptdata->score = $score;
+
+            $attemptdata->history = json_encode($history);
+
+            // Save or update the attempt record.
+            if ($userattempt) {
+                $attemptdata->id = $userattempt->id;
+                $DB->update_record('yesno_attempts', $attemptdata);
+            } else {
+                $DB->insert_record('yesno_attempts', $attemptdata);
+            }
+
+            // Refresh the attempt data.
+            $userattempt = $DB->get_record('yesno_attempts', [
+                'userid' => $USER->id,
+                'yesnoid' => $yesno->id
+            ]);
+            $questioncount = $userattempt->question_count;
+            $score = isset($userattempt->score) ? $userattempt->score : 0;
+            $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
+
+            // Display the AI response.
+            echo html_writer::start_tag('div', ['class' => 'yesno-ai-response']);
+            echo html_writer::tag('h4', get_string('airesponse', 'yesno'));
+            echo html_writer::tag('p', s($airesponse));
+            echo html_writer::end_tag('div');
+
+        } catch (Exception $e) {
+            echo html_writer::start_tag('div', ['class' => 'alert alert-danger']);
+            echo html_writer::tag('p', get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage());
             echo html_writer::end_tag('div');
         }
+    } else {
+        echo html_writer::start_tag('div', ['class' => 'alert alert-warning']);
+        echo html_writer::tag('p', get_string('maxquestionsreached', 'yesno'));
+        echo html_writer::end_tag('div');
+    }
 }
 
 // Add JavaScript for character counter using AMD module.

@@ -33,6 +33,7 @@
         <FIELD NAME="history" TYPE="text" LENGHT="medium" NOTNULL="false" COMMENT="JSON encoded array of the conversation"/>
         <FIELD NAME="question_count" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active" COMMENT="active, win, loss"/>
+        <FIELD NAME="score" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" COMMENT="Current score for this attempt"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
       </FIELDS>
       <KEYS>
