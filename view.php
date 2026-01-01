@@ -160,8 +160,11 @@ if (!empty($studentquestion) && confirm_sesskey()) {
             $airesponselower = strtolower($airesponse);
             $targetwordlower = strtolower($yesno->secret);
             $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
+            
+            // Also check if the response contains "yes that is the correct answer"
+            $contains_correct_answer = (strpos($airesponselower, 'yes that is the correct answer') !== false);
 
-            if ($iscorrect) {
+            if ($iscorrect || $contains_correct_answer) {
                 // If correct answer found, calculate proportional score
                 // Score = max_grade - (number of attempts - 1)
                 $score = max(0, $maxscore - ($currentquestion - 1));
@@ -201,6 +204,9 @@ if (!empty($studentquestion) && confirm_sesskey()) {
             // Display the AI response.
             echo html_writer::start_tag('div', ['class' => 'yesno-ai-response']);
             echo html_writer::tag('h4', get_string('airesponse', 'yesno'));
+            if ($iscorrect || $contains_correct_answer) {
+                echo html_writer::tag('p', 'Yes, that is the correct answer!');
+            }
             echo html_writer::tag('p', s($airesponse));
             echo html_writer::end_tag('div');
 
