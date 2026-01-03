@@ -167,37 +167,13 @@ if (!empty($studentquestion) && confirm_sesskey()) {
                 'timestamp' => time()
             ];
 
-            // Calculate score based on the number of questions asked
-            // If they guess the correct answer, marks = max_grade - (attempts - 1)
-            // If they run out of attempts without guessing correctly, score = 0
-            $maxscore = $yesno->max_grade;
+            // Process the attempt and calculate the score.
             $currentquestion = count($history);
+            $processed_attempt = yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentquestion, $iscorrect);
+            $score = $processed_attempt['score'];
+            $attemptdata->status = $processed_attempt['status'];
 
-            // Check if the AI response indicates the target word was found
-            // This is a simple check - in a real implementation, you might want
-            // to make this more sophisticated based on your AI response format
-            $airesponselower = strtolower($airesponse);
-            $targetwordlower = strtolower($yesno->secret);
-            if (!$iscorrect) { // Only check AI response if not a direct guess.
-                $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
-            }
-
-            if ($iscorrect) {
-                // If correct answer found, calculate proportional score
-                // Score = max_grade - (number of attempts - 1)
-                $score = max(0, $maxscore - ($currentquestion - 1));
-                $attemptdata->status = 'win';
-            } else if ($currentquestion >= $yesno->maxquestions) {
-                // If no correct answer and max questions reached, score = 0.
-                $score = 0;
-                $attemptdata->status = 'loss';
-            } else {
-                // Game still active, no score yet
-                $score = 0;
-                $attemptdata->status = 'active';
-            }
-
-            // Set the score in the attempt data
+            // Set the score in the attempt data.
             $attemptdata->score = $score;
 
             $attemptdata->history = json_encode($history);
@@ -210,21 +186,9 @@ if (!empty($studentquestion) && confirm_sesskey()) {
                 $DB->insert_record('yesno_attempts', $attemptdata);
             }
 
-            // Update Moodle gradebook if score has been calculated (game finished or correct answer found)
-            if ($score > 0 || $userattempt->status === 'win' || $userattempt->status === 'loss') {
-                // Include gradebook integration
-                require_once($CFG->libdir . '/gradelib.php');
-
-                // Prepare grade data
-                $grade = new stdClass();
-                $grade->userid = $USER->id;
-                $grade->rawgrade = $score;
-                $grade->maxgrade = $yesno->max_grade;
-                $grade->timecreated = time();
-                $grade->timemodified = time();
-
-                // Update gradebook
-                grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, $grade);
+            // Update Moodle gradebook if the game is finished.
+            if ($attemptdata->status === 'win' || $attemptdata->status === 'loss') {
+                yesno_update_gradebook($yesno, $USER->id, $score);
             }
 
             // Refresh the attempt data.

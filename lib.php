@@ -221,3 +221,60 @@ function yesno_add_instance($yesno) {
 
     return $DB->insert_record('yesno', $yesno);
 }
+
+/**
+ * Process a user's attempt, calculate the score, and determine the game status.
+ *
+ * @param object $yesno The yesno activity object.
+ * @param string $studentquestion The student's submitted question.
+ * @param string $airesponse The response from the AI.
+ * @param int $currentquestion The number of the current question.
+ * @param bool $iscorrect Whether the student's guess was correct.
+ * @return array An array containing the calculated score and the game status.
+ */
+function yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentquestion, $iscorrect) {
+    // Check if the AI response indicates the target word was found.
+    if (!$iscorrect) {
+        $airesponselower = strtolower($airesponse);
+        $targetwordlower = strtolower($yesno->secret);
+        $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
+    }
+
+    if ($iscorrect) {
+        // If correct answer found, calculate proportional score.
+        $score = max(0, $yesno->max_grade - ($currentquestion - 1));
+        $status = 'win';
+    } else if ($currentquestion >= $yesno->maxquestions) {
+        // If no correct answer and max questions reached, score is 0.
+        $score = 0;
+        $status = 'loss';
+    } else {
+        // Game still active, no score yet.
+        $score = 0;
+        $status = 'active';
+    }
+
+    return ['score' => $score, 'status' => $status];
+}
+
+/**
+ * Update the Moodle gradebook with the user's score for the yesno activity.
+ *
+ * @param object $yesno The yesno activity object.
+ * @param int $userid The user's ID.
+ * @param float $score The score to be recorded.
+ */
+function yesno_update_gradebook($yesno, $userid, $score) {
+    global $CFG;
+
+    require_once($CFG->libdir . '/gradelib.php');
+
+    $grade = new stdClass();
+    $grade->userid = $userid;
+    $grade->rawgrade = $score;
+    $grade->maxgrade = $yesno->max_grade;
+    $grade->timecreated = time();
+    $grade->timemodified = time();
+
+    grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, $grade);
+}
