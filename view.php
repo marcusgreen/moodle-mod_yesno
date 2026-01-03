@@ -116,18 +116,37 @@ $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 
 if (!empty($studentquestion) && confirm_sesskey()) {
     require_sesskey();
-
+    xdebug_break();
     // Check if user has remaining attempts and game is not finished.
     if ($questioncount < $yesno->maxquestions && !$gamefinished) {
-        try {
-            // Combine student question with system prompt.
-            $combinedprompt = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt) . "\n\n" . get_string('studentquestionprefix', 'yesno') . ": " . $studentquestion;
+        $airesponse = '';
+        $iscorrect = false;
 
-            // Use the AI bridge to get response.
-            require_once(__DIR__ . '/classes/aibridge.php');
-            $aibridge = new \quiz_aitext\aibridge($modulecontext->id);
-            $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
+        // If the student's question is the same as the secret word, they win.
+        if (strcasecmp(trim($studentquestion), $yesno->secret) == 0) {
+            $airesponse = "Yes you have guessed the secret";
+            $iscorrect = true;
+        } else if (stripos(trim($studentquestion), $yesno->secret) !== false) {
+            $airesponse = "You have found the secret!";
+            $iscorrect = true;
+        } else {
+            try {
+                // Combine student question with system prompt.
+                $combinedprompt = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt) . "\n\n" . get_string('studentquestionprefix', 'yesno') . ": " . $studentquestion;
 
+                // Use the AI bridge to get response.
+                require_once(__DIR__ . '/classes/aibridge.php');
+                $aibridge = new \mod_yesno\AiBridge($modulecontext->id);
+                $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
+
+            } catch (Exception $e) {
+                echo html_writer::start_tag('div', ['class' => 'alert alert-danger']);
+                echo html_writer::tag('p', get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage());
+                echo html_writer::end_tag('div');
+            }
+        }
+
+        if (!empty($airesponse)) {
             // Update attempt record.
             $attemptdata = new stdClass();
             $attemptdata->userid = $USER->id;
@@ -159,12 +178,11 @@ if (!empty($studentquestion) && confirm_sesskey()) {
             // to make this more sophisticated based on your AI response format
             $airesponselower = strtolower($airesponse);
             $targetwordlower = strtolower($yesno->secret);
-            $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
-            
-            // Also check if the response contains "yes that is the correct answer"
-            $contains_correct_answer = (strpos($airesponselower, 'yes that is the correct answer') !== false);
+            if (!$iscorrect) { // Only check AI response if not a direct guess.
+                $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
+            }
 
-            if ($iscorrect || $contains_correct_answer) {
+            if ($iscorrect) {
                 // If correct answer found, calculate proportional score
                 // Score = max_grade - (number of attempts - 1)
                 $score = max(0, $maxscore - ($currentquestion - 1));
@@ -192,6 +210,23 @@ if (!empty($studentquestion) && confirm_sesskey()) {
                 $DB->insert_record('yesno_attempts', $attemptdata);
             }
 
+            // Update Moodle gradebook if score has been calculated (game finished or correct answer found)
+            if ($score > 0 || $userattempt->status === 'win' || $userattempt->status === 'loss') {
+                // Include gradebook integration
+                require_once($CFG->libdir . '/gradelib.php');
+
+                // Prepare grade data
+                $grade = new stdClass();
+                $grade->userid = $USER->id;
+                $grade->rawgrade = $score;
+                $grade->maxgrade = $yesno->max_grade;
+                $grade->timecreated = time();
+                $grade->timemodified = time();
+
+                // Update gradebook
+                grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, $grade);
+            }
+
             // Refresh the attempt data.
             $userattempt = $DB->get_record('yesno_attempts', [
                 'userid' => $USER->id,
@@ -202,17 +237,13 @@ if (!empty($studentquestion) && confirm_sesskey()) {
             $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
 
             // Display the AI response.
-            echo html_writer::start_tag('div', ['class' => 'yesno-ai-response']);
-            echo html_writer::tag('h4', get_string('airesponse', 'yesno'));
-            if ($iscorrect || $contains_correct_answer) {
-                echo html_writer::tag('p', 'Yes, that is the correct answer!');
+            $response_class = 'yesno-ai-response';
+            if ($gamefinished && $userattempt->status === 'win') {
+                $response_class .= ' yesno-secret-guessed';
             }
+            echo html_writer::start_tag('div', ['class' => $response_class]);
+            echo html_writer::tag('h4', get_string('airesponse', 'yesno'));
             echo html_writer::tag('p', s($airesponse));
-            echo html_writer::end_tag('div');
-
-        } catch (Exception $e) {
-            echo html_writer::start_tag('div', ['class' => 'alert alert-danger']);
-            echo html_writer::tag('p', get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage());
             echo html_writer::end_tag('div');
         }
     } else {
