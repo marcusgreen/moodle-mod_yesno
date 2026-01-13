@@ -22,9 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Update a yesno instance
  *
@@ -39,7 +36,7 @@ function yesno_update_instance($data, $mform = null) {
     $data->timemodified = time();
     $data->id = $data->instance;
 
-    // Handle editor fields - they come as arrays with 'text' and 'format'
+    // Handle editor fields - they come as arrays with 'text' and 'format'.
     if (isset($data->clue) && is_array($data->clue)) {
         $data->clue = $data->clue['text'];
     }
@@ -83,14 +80,14 @@ function yesno_delete_instance($id) {
 function yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt) {
     global $OUTPUT;
 
-    // Ensure score is a valid integer
+    // Ensure score is a valid integer.
     $score = is_numeric($score) ? (int)$score : 0;
 
-    // Determine if game is finished
+    // Determine if game is finished.
     $gamefinished = false;
     $finalscore = 0;
     $gamestatus = 'active';
-    
+
     if ($userattempt) {
         $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
         $finalscore = $userattempt->score;
@@ -108,11 +105,11 @@ function yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontex
         'game_status' => $gamestatus,
         'is_win' => ($gamestatus === 'win'),
         'is_loss' => ($gamestatus === 'loss'),
-        'game_over_message' => $gamefinished ? 
-            ($gamestatus === 'win' ? 
+        'game_over_message' => $gamefinished ?
+            ($gamestatus === 'win' ?
                 get_string('gamewon', 'yesno', ['score' => $finalscore, 'max' => $yesno->max_grade]) :
                 get_string('gamelost', 'yesno')
-            ) : ''
+            ) : '',
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/attempt_info', $data);
@@ -138,7 +135,7 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
         return '';
     }
 
-    // Reverse the history array to show most recent responses at the top
+    // Reverse the history array to show most recent responses at the top.
     $history = array_reverse($history);
 
     $historyitems = [];
@@ -146,7 +143,7 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
         $historyitems[] = [
             'question' => format_text($item['question'], FORMAT_PLAIN),
             'response' => format_text($item['response'], FORMAT_PLAIN),
-            'timestamp' => userdate($item['timestamp'])
+            'timestamp' => userdate($item['timestamp']),
         ];
     }
 
@@ -155,7 +152,7 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
         'conversation_history_title' => get_string('conversationhistory', 'yesno'),
         'your_question_label' => get_string('yourquestion', 'yesno'),
         'ai_response_label' => get_string('airesponse', 'yesno'),
-        'history_items' => $historyitems
+        'history_items' => $historyitems,
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/conversation_history', $data);
@@ -178,14 +175,14 @@ function yesno_render_question_form($yesno, $modulecontext) {
         'char_limit_info_text' => get_string('charlimitinfo', 'yesno', $yesno->max_characters),
         'char_counter_text' => get_string('charsremaining', 'yesno', [
             'remaining' => $yesno->max_characters,
-            'max' => $yesno->max_characters
+            'max' => $yesno->max_characters,
         ]),
         'form_action' => $modulecontext->get_url()->out(),
         'sesskey' => sesskey(),
         'your_question_label' => get_string('yourquestion', 'yesno'),
         'max_characters' => $yesno->max_characters,
         'enter_question_placeholder' => get_string('enteryourquestion', 'yesno'),
-        'submit_button_text' => get_string('submitquestion', 'yesno')
+        'submit_button_text' => get_string('submitquestion', 'yesno'),
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/question_form', $data);
@@ -206,7 +203,7 @@ function yesno_add_instance($yesno) {
 
     $yesno->timecreated = time();
 
-    // Handle editor fields - they come as arrays with 'text' and 'format'
+    // Handle editor fields - they come as arrays with 'text' and 'format'.
     if (isset($yesno->clue) && is_array($yesno->clue)) {
         $yesno->clue = $yesno->clue['text'];
     }
@@ -214,7 +211,7 @@ function yesno_add_instance($yesno) {
         $yesno->system_prompt = $yesno->system_prompt['text'];
     }
 
-    // Set default prompt if not provided
+    // Set default prompt if not provided.
     if (empty($yesno->system_prompt)) {
         $yesno->system_prompt = get_config('mod_yesno', 'defaultprompt');
     }

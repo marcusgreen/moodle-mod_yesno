@@ -98,7 +98,7 @@ class mod_yesno_mod_form extends moodleform_mod {
     public function data_preprocessing(&$defaultvalues) {
         global $CFG;
 
-        // Preprocess the clue field (editor field)
+        // Preprocess the clue field (editor field).
         if (!empty($defaultvalues['clue'])) {
             $defaultvalues['clue'] = ['text' => $defaultvalues['clue'], 'format' => FORMAT_HTML];
         } else {

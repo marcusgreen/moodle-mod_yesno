@@ -1,6 +1,23 @@
 {{!
+    @template mod_yesno/conversation_history
+
     Conversation history template for yesno module
     Renders the history of questions and AI responses
+
+    Example context (json):
+    {
+        "has_history": true,
+        "conversation_history_title": "Conversation History",
+        "history_items": [
+            {
+                "your_question_label": "Your Question",
+                "question": "Is it an animal?",
+                "ai_response_label": "AI Response",
+                "response": "Yes",
+                "timestamp": "2025-01-13 10:30:00"
+            }
+        ]
+    }
 }}
 {{#has_history}}
 <div class="yesno-conversation-history">

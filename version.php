@@ -14,10 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
+/**
+ * Version information for the yesno module.
+ *
+ * @package    mod_yesno
+ * @copyright  2025 Your Name
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025123101;        // The current module version (Date: YYYYMMDDXX)
-$plugin->requires  = 2022112800;        // Requires Moodle 4.0
-$plugin->component = 'mod_yesno';       // Full name of the plugin (used for diagnostics)
+$plugin->version   = 2025123101;        // The current module version (Date: YYYYMMDDXX).
+$plugin->requires  = 2022112800;        // Requires Moodle 4.0.
+$plugin->component = 'mod_yesno';       // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->release   = '1.0 (Build: 2024060100)';

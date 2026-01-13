@@ -1,26 +1,42 @@
 {{!
+    @template mod_yesno/question_form
+
     Question form template for yesno module
     Renders the student question input form with character counter
+
+    Example context (json):
+    {
+        "ask_question_title": "Ask a Question",
+        "char_limit_info": true,
+        "char_limit_info_text": "Maximum 200 characters",
+        "char_counter_text": "0 / 200 characters",
+        "form_action": "/mod/yesno/view.php",
+        "sesskey": "abc123def456",
+        "your_question_label": "Your Question",
+        "max_characters": 200,
+        "enter_question_placeholder": "Enter your question here...",
+        "submit_button_text": "Submit Question"
+    }
 }}
 <div class="yesno-question-form">
     <h3>{{ask_question_title}}</h3>
-    
+
     {{#char_limit_info}}
     <p class="char-limit-info">{{char_limit_info_text}}</p>
     {{/char_limit_info}}
-    
+
     <p class="char-counter" id="char-counter">{{char_counter_text}}</p>
-    
+
     <form method="post" action="{{form_action}}" class="question-form">
         <input type="hidden" name="sesskey" value="{{sesskey}}">
-        
+
         <div class="form-group">
             <label for="student_question">{{your_question_label}}</label>
-            <textarea id="student_question" name="student_question" class="form-control" rows="3" 
-                      maxlength="{{max_characters}}" placeholder="{{enter_question_placeholder}}" 
+            <textarea id="student_question" name="student_question" class="form-control" rows="3"
+                      maxlength="{{max_characters}}" placeholder="{{enter_question_placeholder}}"
                       required></textarea>
         </div>
-        
+
         <div class="form-group">
             <button type="submit" class="btn btn-primary">{{submit_button_text}}</button>
         </div>
