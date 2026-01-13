@@ -1,6 +1,22 @@
 {{!
+    @template mod_yesno/attempt_info
+
     Attempt information template for yesno module
     Displays the current question count, limits, and score
+
+    Example context (json):
+    {
+        "has_attempt_info": true,
+        "attempt_info_text": "Question 5 of 20",
+        "game_finished": false,
+        "is_win": false,
+        "is_loss": false,
+        "game_over_message": "",
+        "final_score": 0,
+        "max_score": 100,
+        "show_score": true,
+        "score": 50
+    }
 }}
 {{#has_attempt_info}}
 <div class="yesno-attempt-info">

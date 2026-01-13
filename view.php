@@ -83,7 +83,7 @@ echo html_writer::tag(
 // Get current user's attempt record.
 $userattempt = $DB->get_record('yesno_attempts', [
     'userid' => $USER->id,
-    'yesnoid' => $yesno->id
+    'yesnoid' => $yesno->id,
 ]);
 
 // Initialize question count and check game status.
@@ -93,7 +93,7 @@ $gamefinished = false;
 
 if ($userattempt) {
     $questioncount = $userattempt->question_count;
-    // Handle case where score field doesn't exist yet (before database upgrade)
+    // Handle case where score field doesn't exist yet (before database upgrade).
     $score = isset($userattempt->score) ? $userattempt->score : 0;
     $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
 }
@@ -132,13 +132,14 @@ if (!empty($studentquestion) && confirm_sesskey()) {
         } else {
             try {
                 // Combine student question with system prompt.
-                $combinedprompt = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt) . "\n\n" . get_string('studentquestionprefix', 'yesno') . ": " . $studentquestion;
+                $promptwithsecret = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt);
+                $questionprefix = get_string('studentquestionprefix', 'yesno');
+                $combinedprompt = $promptwithsecret . "\n\n" . $questionprefix . ": " . $studentquestion;
 
                 // Use the AI bridge to get response.
                 require_once(__DIR__ . '/classes/aibridge.php');
                 $aibridge = new \mod_yesno\AiBridge($modulecontext->id);
                 $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
-
             } catch (Exception $e) {
                 echo html_writer::start_tag('div', ['class' => 'alert alert-danger']);
                 echo html_writer::tag('p', get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage());
@@ -164,14 +165,14 @@ if (!empty($studentquestion) && confirm_sesskey()) {
             $history[] = [
                 'question' => $studentquestion,
                 'response' => $airesponse,
-                'timestamp' => time()
+                'timestamp' => time(),
             ];
 
             // Process the attempt and calculate the score.
             $currentquestion = count($history);
-            $processed_attempt = yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentquestion, $iscorrect);
-            $score = $processed_attempt['score'];
-            $attemptdata->status = $processed_attempt['status'];
+            $processedattempt = yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentquestion, $iscorrect);
+            $score = $processedattempt['score'];
+            $attemptdata->status = $processedattempt['status'];
 
             // Set the score in the attempt data.
             $attemptdata->score = $score;
@@ -194,18 +195,18 @@ if (!empty($studentquestion) && confirm_sesskey()) {
             // Refresh the attempt data.
             $userattempt = $DB->get_record('yesno_attempts', [
                 'userid' => $USER->id,
-                'yesnoid' => $yesno->id
+                'yesnoid' => $yesno->id,
             ]);
             $questioncount = $userattempt->question_count;
             $score = isset($userattempt->score) ? $userattempt->score : 0;
             $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
 
             // Display the AI response.
-            $response_class = 'yesno-ai-response';
+            $responseclass = 'yesno-ai-response';
             if ($gamefinished && $userattempt->status === 'win') {
-                $response_class .= ' yesno-secret-guessed';
+                $responseclass .= ' yesno-secret-guessed';
             }
-            echo html_writer::start_tag('div', ['class' => $response_class]);
+            echo html_writer::start_tag('div', ['class' => $responseclass]);
             echo html_writer::tag('h4', get_string('airesponse', 'yesno'));
             echo html_writer::tag('p', s($airesponse));
             echo html_writer::end_tag('div');

@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Function to upgrade yesno module.
  *
@@ -36,16 +34,16 @@ function xmldb_yesno_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2025123101) {
-        // Define field score to be added to yesno_attempts
+        // Define field score to be added to yesno_attempts.
         $table = new xmldb_table('yesno_attempts');
         $field = new xmldb_field('score', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'status');
 
-        // Conditionally launch add field score
+        // Conditionally launch add field score.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // yesno savepoint reached
+        // Yesno savepoint reached.
         upgrade_mod_savepoint(true, 2025123101, 'yesno');
     }
 
