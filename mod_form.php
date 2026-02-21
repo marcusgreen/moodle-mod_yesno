@@ -78,6 +78,14 @@ class mod_yesno_mod_form extends moodleform_mod {
         $mform->addRule('max_grade', get_string('maximumchars', '', 1000), 'maxlength', 4, 'client');
         $mform->addHelpButton('max_grade', 'maxgrade', 'yesno');
 
+        // Adding the max questions field.
+        $mform->addElement('text', 'max_questions', get_string('maxquestions', 'yesno'), ['size' => '6']);
+        $mform->setType('max_questions', PARAM_INT);
+        $mform->setDefault('max_questions', 20);
+        $mform->addRule('max_questions', null, 'numeric', null, 'client');
+        $mform->addRule('max_questions', get_string('maximumchars', '', 1000), 'maxlength', 4, 'client');
+        $mform->addHelpButton('max_questions', 'maxquestions', 'yesno');
+
         // Adding the clue field.
         $mform->addElement('editor', 'clue', get_string('clue', 'yesno'));
         $mform->setType('clue', PARAM_RAW);
