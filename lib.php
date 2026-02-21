@@ -96,7 +96,7 @@ function yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontex
 
     $data = [
         'has_attempt_info' => true,
-        'attempt_info_text' => get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->maxquestions]),
+        'attempt_info_text' => get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->max_questions]),
         'score' => $score,
         'max_score' => $yesno->max_grade,
         'show_score' => ($score > 0 && $gamefinished),
@@ -116,7 +116,43 @@ function yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontex
 }
 
 /**
- * Render conversation history using mustache template
+ * Render the last (most recent) response only
+ *
+ * @param object $userattempt
+ * @param context_module $modulecontext
+ * @return string HTML output of the last response
+ * @package mod_yesno
+ */
+function yesno_render_last_response($userattempt, $modulecontext) {
+    global $OUTPUT;
+
+    if (!$userattempt || empty($userattempt->history)) {
+        return '';
+    }
+
+    $history = json_decode($userattempt->history, true);
+    if (!is_array($history) || count($history) === 0) {
+        return '';
+    }
+
+    $lastitem = end($history);
+
+    $data = [
+        'has_history' => true,
+        'your_question_label' => get_string('yourquestion', 'yesno'),
+        'ai_response_label' => get_string('airesponse', 'yesno'),
+        'history_items' => [[
+            'question' => format_text($lastitem['question'], FORMAT_PLAIN),
+            'response' => format_text($lastitem['response'], FORMAT_PLAIN),
+            'timestamp' => userdate($lastitem['timestamp'])
+        ]]
+    ];
+
+    return $OUTPUT->render_from_template('mod_yesno/conversation_history', $data);
+}
+
+/**
+ * Render conversation history (excluding the last response) using mustache template
  *
  * @param object $userattempt
  * @param context_module $modulecontext
@@ -131,11 +167,12 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
     }
 
     $history = json_decode($userattempt->history, true);
-    if (!is_array($history) || count($history) === 0) {
+    if (!is_array($history) || count($history) < 2) {
         return '';
     }
 
     // Reverse the history array to show most recent responses at the top.
+    array_pop($history);
     $history = array_reverse($history);
 
     $historyitems = [];
@@ -180,6 +217,9 @@ function yesno_render_question_form($yesno, $modulecontext) {
         'form_action' => $modulecontext->get_url()->out(),
         'sesskey' => sesskey(),
         'your_question_label' => get_string('yourquestion', 'yesno'),
+        'help_button' => $OUTPUT->help_icon('yourquestion', 'yesno'),
+        'max_questions_label' => get_string('maxquestions', 'yesno'),
+        'max_questions_help' => $OUTPUT->help_icon('maxquestions', 'yesno'),
         'max_characters' => $yesno->max_characters,
         'enter_question_placeholder' => get_string('enteryourquestion', 'yesno'),
         'submit_button_text' => get_string('submitquestion', 'yesno'),
@@ -241,7 +281,7 @@ function yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentqu
         // If correct answer found, calculate proportional score.
         $score = max(0, $yesno->max_grade - ($currentquestion - 1));
         $status = 'win';
-    } else if ($currentquestion >= $yesno->maxquestions) {
+    } else if ($currentquestion >= $yesno->max_questions) {
         // If no correct answer and max questions reached, score is 0.
         $score = 0;
         $status = 'loss';

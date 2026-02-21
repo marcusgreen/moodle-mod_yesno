@@ -31,6 +31,10 @@
         <input type="hidden" name="sesskey" value="{{sesskey}}">
 
         <div class="form-group">
+            <label>{{max_questions_label}} {{{max_questions_help}}}</label>
+        </div>
+
+        <div class="form-group">
             <label for="student_question">{{your_question_label}}</label>
             <textarea id="student_question" name="student_question" class="form-control" rows="3"
                       maxlength="{{max_characters}}" placeholder="{{enter_question_placeholder}}"

@@ -101,16 +101,6 @@ if ($userattempt) {
 // Display attempt information using mustache template.
 echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
 
-
-// Student question input form using mustache template.
-if (!$gamefinished) {
-    echo yesno_render_question_form($yesno, $modulecontext);
-} else {
-    echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
-    echo html_writer::tag('p', get_string('gamefinishedmsg', 'yesno'));
-    echo html_writer::end_tag('div');
-}
-
 // Handle form submission.
 $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 
@@ -200,22 +190,24 @@ if (!empty($studentquestion) && confirm_sesskey()) {
             $questioncount = $userattempt->question_count;
             $score = isset($userattempt->score) ? $userattempt->score : 0;
             $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
-
-            // Display the AI response.
-            $responseclass = 'yesno-ai-response';
-            if ($gamefinished && $userattempt->status === 'win') {
-                $responseclass .= ' yesno-secret-guessed';
-            }
-            echo html_writer::start_tag('div', ['class' => $responseclass]);
-            echo html_writer::tag('h4', get_string('airesponse', 'yesno'));
-            echo html_writer::tag('p', s($airesponse));
-            echo html_writer::end_tag('div');
         }
     } else {
         echo html_writer::start_tag('div', ['class' => 'alert alert-warning']);
         echo html_writer::tag('p', get_string('maxquestionsreached', 'yesno'));
         echo html_writer::end_tag('div');
     }
+}
+
+// Display most recent submission and response above the textarea.
+echo yesno_render_last_response($userattempt, $modulecontext);
+
+// Student question input form using mustache template.
+if (!$gamefinished) {
+    echo yesno_render_question_form($yesno, $modulecontext);
+} else {
+    echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
+    echo html_writer::tag('p', get_string('gamefinishedmsg', 'yesno'));
+    echo html_writer::end_tag('div');
 }
 
 // Add JavaScript for character counter using AMD module.
