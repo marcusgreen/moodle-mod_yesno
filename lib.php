@@ -314,4 +314,5 @@ function yesno_update_gradebook(stdClass $yesno, int $userid, float $score): boo
     $grade->timemodified = time();
 
     grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, $grade);
+    return true;
 }

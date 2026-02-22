@@ -71,5 +71,60 @@ class mod_yesno_lib_test extends advanced_testcase {
         $deleted = $DB->record_exists('yesno', ['id' => $id]);
         $this->assertFalse($deleted);
     }
+    /**
+     * Test that the gradebook is updated correctly for a yesno activity.
+     */
+    public function test_update_gradebook(): void {
+        // Create a dummy yesno instance.
+        $yesno = new stdClass();
+        $yesno->name           = 'Gradebook Test';
+        $yesno->course         = $this->course->id;
+        $yesno->max_grade      = 100;
+        $yesno->max_questions  = 5;
+        $yesno->max_characters = 250;
+        $yesno->secret         = 'grade-secret';
+        $yesno->clue           = '';
+        $yesno->system_prompt  = '';
+        $cm = $this->getDataGenerator()->create_module('yesno', $yesno);
+        if (property_exists($cm, 'instance')) {
+            $yesnoid = $cm->instance;
+        } else {
+            // Fallback: retrieve the activity id directly from the DB.
+            global $DB;
+            $yesnoid = $DB->get_field('yesno', 'id', ['name' => $yesno->name, 'course' => $this->course->id]);
+        }
+        $yesnoid = (int)$yesnoid;
+        $this->assertIsInt($yesnoid);
+
+        // Retrieve the freshly inserted record.
+        global $DB;
+        $yesnorecord = $DB->get_record('yesno', ['id' => $yesnoid]);
+        $this->assertNotEmpty($yesnorecord);
+
+        // Create a dummy user.
+        $user = $this->getDataGenerator()->create_user();
+
+        // Update the gradebook with a specific score.
+        $score = 85.5;
+        $result = yesno_update_gradebook($yesnorecord, $user->id, $score);
+        $this->assertTrue($result);
+
+        // Verify the grade item exists.
+        $gradeitem = $DB->get_record('grade_items', [
+            'itemtype'    => 'mod',
+            'itemmodule'  => 'yesno',
+            'iteminstance'=> $yesnoid,
+            'courseid'    => $yesnorecord->course,
+        ]);
+        $this->assertNotEmpty($gradeitem);
+
+        // Verify the grade record for the user.
+        $grade = $DB->get_record('grade_grades', [
+            'itemid' => $gradeitem->id,
+            'userid' => $user->id,
+        ]);
+        $this->assertNotEmpty($grade);
+        $this->assertEquals($score, $grade->finalgrade);
+    }
 }
 
