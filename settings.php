@@ -37,3 +37,13 @@ $settings->add(new admin_setting_configtextarea(
     get_string('defaultprompt_desc', 'mod_yesno'),
     $defaultprompt
 ));
+
+// Default number of attempts for questions.
+$defaultattempts = 20; // Default value, can be changed via admin settings.
+$settings->add(new admin_setting_configtext(
+    'mod_yesno/defaultattempts',
+    get_string('defaultattempts', 'mod_yesno'),
+    get_string('defaultattempts_desc', 'mod_yesno'),
+    $defaultattempts,
+    PARAM_INT
+));
