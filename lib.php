@@ -30,7 +30,7 @@
  * @return bool true if successful
  * @package mod_yesno
  */
-function yesno_update_instance($data, $mform = null) {
+function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool {
     global $DB;
 
     $data->timemodified = time();
@@ -57,7 +57,7 @@ function yesno_update_instance($data, $mform = null) {
  * @return bool true if successful
  * @package mod_yesno
  */
-function yesno_delete_instance($id) {
+function yesno_delete_instance(int $id): bool {
     global $DB;
 
     // Deleting the record.
@@ -77,7 +77,7 @@ function yesno_delete_instance($id) {
  * @return string HTML output of attempt information
  * @package mod_yesno
  */
-function yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt) {
+function yesno_render_attempt_info(stdClass $yesno, int $questioncount, int $score, context_module $modulecontext, ?stdClass $userattempt = null): string {
     global $OUTPUT;
 
     // Ensure score is a valid integer.
@@ -123,7 +123,7 @@ function yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontex
  * @return string HTML output of the last response
  * @package mod_yesno
  */
-function yesno_render_last_response($userattempt, $modulecontext) {
+function yesno_render_last_response(?stdClass $userattempt, context_module $modulecontext): string {
     global $OUTPUT;
 
     if (!$userattempt || empty($userattempt->history)) {
@@ -159,7 +159,7 @@ function yesno_render_last_response($userattempt, $modulecontext) {
  * @return string HTML output of conversation history
  * @package mod_yesno
  */
-function yesno_render_conversation_history($userattempt, $modulecontext) {
+function yesno_render_conversation_history(?stdClass $userattempt, context_module $modulecontext): string {
     global $OUTPUT;
 
     if (!$userattempt || empty($userattempt->history)) {
@@ -203,7 +203,7 @@ function yesno_render_conversation_history($userattempt, $modulecontext) {
  * @return string HTML output of question form
  * @package mod_yesno
  */
-function yesno_render_question_form($yesno, $modulecontext) {
+function yesno_render_question_form(stdClass $yesno, context_module $modulecontext): string {
     global $OUTPUT;
 
     $data = [
@@ -238,7 +238,7 @@ function yesno_render_question_form($yesno, $modulecontext) {
  * @return int
  * @package mod_yesno
  */
-function yesno_add_instance($yesno) {
+function yesno_add_instance(stdClass $yesno): int {
     global $DB;
 
     $yesno->timecreated = time();
@@ -269,7 +269,7 @@ function yesno_add_instance($yesno) {
  * @param bool $iscorrect Whether the student's guess was correct.
  * @return array An array containing the calculated score and the game status.
  */
-function yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentquestion, $iscorrect) {
+function yesno_process_attempt(stdClass $yesno, string $studentquestion, string $airesponse, int $currentquestion, bool $iscorrect = false): array {
     // Check if the AI response indicates the target word was found.
     if (!$iscorrect) {
         $airesponselower = strtolower($airesponse);
@@ -301,7 +301,7 @@ function yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentqu
  * @param int $userid The user's ID.
  * @param float $score The score to be recorded.
  */
-function yesno_update_gradebook($yesno, $userid, $score) {
+function yesno_update_gradebook(stdClass $yesno, int $userid, float $score): bool {
     global $CFG;
 
     require_once($CFG->libdir . '/gradelib.php');
