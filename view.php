@@ -85,6 +85,9 @@ $userattempt = $DB->get_record('yesno_attempts', [
     'userid' => $USER->id,
     'yesnoid' => $yesno->id,
 ]);
+if (!$userattempt) {
+    $userattempt = null;
+}
 
 // Initialize question count and check game status.
 $questioncount = 0;

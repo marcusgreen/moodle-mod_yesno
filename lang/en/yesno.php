@@ -67,3 +67,4 @@ $string['viewmsg'] = 'You can view this activity.';
 $string['yesnoname'] = 'Activity name';
 $string['yesnoname_help'] = 'The name of this Twenty Questions activity';
 $string['yourquestion'] = 'Your question';
+$string['yourquestion_help'] = 'Your question help string';
