@@ -49,7 +49,7 @@ class AiBridge {
         if (defined('BEHAT_SITE_RUNNING') || (defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
             return "AI Feedback";
         }
-        xdebug_break();
+
         $backend = get_config('qtype_aitext', 'backend');
         if ($backend == 'local_ai_manager') {
             $manager = new \local_ai_manager\manager($purpose);

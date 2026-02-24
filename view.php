@@ -109,7 +109,7 @@ $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 
 if (!empty($studentquestion) && confirm_sesskey()) {
     require_sesskey();
-    xdebug_break();
+
     // Check if user has remaining attempts and game is not finished.
     if ($questioncount < $yesno->maxquestions && !$gamefinished) {
         $airesponse = '';

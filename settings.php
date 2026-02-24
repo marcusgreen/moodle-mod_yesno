@@ -33,8 +33,8 @@ $defaultprompt = 'Role: "20 Questions" evaluator for secret word: {{target_word}
 
 $settings->add(new admin_setting_configtextarea(
     'mod_yesno/defaultprompt',
-    get_string('defaultprompt', 'mod_yesno'),
-    get_string('defaultprompt_desc', 'mod_yesno'),
+    get_string('defaultprompt', 'yesno'),
+    get_string('defaultprompt_desc', 'yesno'),
     $defaultprompt
 ));
 
@@ -42,8 +42,8 @@ $settings->add(new admin_setting_configtextarea(
 $defaultattempts = 20; // Default value, can be changed via admin settings.
 $settings->add(new admin_setting_configtext(
     'mod_yesno/defaultattempts',
-    get_string('defaultattempts', 'mod_yesno'),
-    get_string('defaultattempts_desc', 'mod_yesno'),
+    get_string('defaultattempts', 'yesno'),
+    get_string('defaultattempts_desc', 'yesno'),
     $defaultattempts,
     PARAM_INT
 ));
@@ -52,8 +52,8 @@ $settings->add(new admin_setting_configtext(
 $defaultmaximumgrade = 20;
 $settings->add(new admin_setting_configtext(
     'mod_yesno/maximumgrade',
-    get_string('maximumgrade', 'mod_yesno'),
-    get_string('maximumgrade_desc', 'mod_yesno'),
+    get_string('maximumgrade', 'yesno'),
+    get_string('maximumgrade_desc', 'yesno'),
     $defaultmaximumgrade,
     PARAM_INT
 ));
