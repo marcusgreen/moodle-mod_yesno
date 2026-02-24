@@ -73,7 +73,11 @@ class mod_yesno_mod_form extends moodleform_mod {
         // Adding the max grade field.
         $mform->addElement('text', 'max_grade', get_string('maxgrade', 'yesno'), ['size' => '6']);
         $mform->setType('max_grade', PARAM_INT);
-        $mform->setDefault('max_grade', 100);
+        $defaultmaxgrade = get_config('mod_yesno', 'maximumgrade');
+        if ($defaultmaxgrade === false) {
+            $defaultmaxgrade = 20; // fallback default
+        }
+        $mform->setDefault('max_grade', $defaultmaxgrade);
         $mform->addRule('max_grade', null, 'numeric', null, 'client');
         $mform->addRule('max_grade', get_string('maximumchars', '', 1000), 'maxlength', 4, 'client');
         $mform->addHelpButton('max_grade', 'maxgrade', 'yesno');
