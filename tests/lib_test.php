@@ -23,11 +23,23 @@ class mod_yesno_lib_test extends advanced_testcase {
     /** @var stdClass The course record used for the test. */
     protected $course;
 
+
     /**
-     * Setup common test data.
+     * Config.php should include the apikey and orgid in the form
+     * define("TEST_LLM_APIKEY", "XXXXXXXXXXXX");
+     * define("TEST_LLM_ORGID", "XXXXXXXXXXXX");
+     * Summary of setUp
+     * @return void
      */
     protected function setUp(): void {
         parent::setUp();
+        $this->question = new \qtype_aitext();
+        if (defined('TEST_LLM_APIKEY') && defined('TEST_LLM_ORGID')) {
+            set_config('apikey', TEST_LLM_APIKEY, 'aiprovider_openai');
+            set_config('orgid', TEST_LLM_ORGID, 'aiprovider_openai');
+            set_config('enabled', true, 'aiprovider_openai');
+            $this->islive = true;
+        }
         $this->resetAfterTest(true);
         // Create a dummy course.
         $this->course = $this->getDataGenerator()->create_course();
