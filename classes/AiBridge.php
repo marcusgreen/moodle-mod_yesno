@@ -47,7 +47,7 @@ class AiBridge {
      */
     public function perform_request(string $prompt, string $purpose = 'feedback'): string {
         if (defined('BEHAT_SITE_RUNNING') || (defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
-            //return "AI Feedback";
+          //  return "AI Feedback";
         }
 
         $backend = get_config('qtype_aitext', 'backend');

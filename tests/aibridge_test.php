@@ -26,7 +26,6 @@ namespace mod_yesno;
  * @covers \mod_yesno\AiBridge
  */
 final class aibridge_test extends \advanced_testcase {
-
     /** @var bool Whether a live LLM API connection is available for testing. */
     protected $islive;
 
@@ -42,13 +41,33 @@ final class aibridge_test extends \advanced_testcase {
      */
     protected function setUp(): void {
         parent::setUp();
+        $this->resetAfterTest(true);
         if (defined('TEST_LLM_APIKEY') && defined('TEST_LLM_ORGID')) {
-            set_config('apikey', TEST_LLM_APIKEY, 'aiprovider_openai');
-            set_config('orgid', TEST_LLM_ORGID, 'aiprovider_openai');
-            set_config('enabled', true, 'aiprovider_openai');
+            // Tell AiBridge which backend to use.
+            set_config('backend', 'core_ai_subsystem', 'qtype_aitext');
+            // Register the provider in the ai_providers table via the manager.
+            $manager = \core\di::get(\core_ai\manager::class);
+            $manager->create_provider_instance(
+                classname: '\aiprovider_openai\provider',
+                name: 'test_openai',
+                enabled: true,
+                config: [
+                    'apikey' => TEST_LLM_APIKEY,
+                    'orgid'  => TEST_LLM_ORGID,
+                ],
+                actionconfig: [
+                    \core_ai\aiactions\generate_text::class => [
+                        'enabled'  => true,
+                        'settings' => [
+                            'model'             => 'gpt-4o',
+                            'endpoint'          => 'https://api.openai.com/v1/chat/completions',
+                            'systeminstruction' => \core_ai\aiactions\generate_text::get_system_instruction(),
+                        ],
+                    ],
+                ],
+            );
             $this->islive = true;
         }
-        $this->resetAfterTest(true);
         // Create a dummy course.
         $this->course = $this->getDataGenerator()->create_course();
     }
@@ -58,9 +77,8 @@ final class aibridge_test extends \advanced_testcase {
      * @covers \mod_yesno\AiBridge::perform_request
      */
     public function test_perform_request_returns_string_in_test_env(): void {
-
-        xdebug_break();
         $bridge = new AiBridge(1);
+        xdebug_break();
         $result = $bridge->perform_request('Is it a fruit?');
         $this->assertIsString($result, 'perform_request must return a string.');
     }
