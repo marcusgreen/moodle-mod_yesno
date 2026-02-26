@@ -1,0 +1,123 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_yesno;
+
+/**
+ * PHPUnit tests for the AiBridge::perform_request() method.
+ *
+ * @package    mod_yesno
+ * @category   test
+ * @copyright  2025 Marcus Green
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers \mod_yesno\AiBridge
+ */
+final class aibridge_test extends \advanced_testcase {
+
+    /** @var bool Whether a live LLM API connection is available for testing. */
+    protected $islive;
+
+    /** @var stdClass The course record used for the test. */
+    protected $course;
+
+    /**
+     * Config.php should include the apikey and orgid in the form
+     * define("TEST_LLM_APIKEY", "XXXXXXXXXXXX");
+     * define("TEST_LLM_ORGID", "XXXXXXXXXXXX");
+     * Summary of setUp
+     * @return void
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        if (defined('TEST_LLM_APIKEY') && defined('TEST_LLM_ORGID')) {
+            set_config('apikey', TEST_LLM_APIKEY, 'aiprovider_openai');
+            set_config('orgid', TEST_LLM_ORGID, 'aiprovider_openai');
+            set_config('enabled', true, 'aiprovider_openai');
+            $this->islive = true;
+        }
+        $this->resetAfterTest(true);
+        // Create a dummy course.
+        $this->course = $this->getDataGenerator()->create_course();
+    }
+    /**
+     * Test that perform_request returns a string in a PHPUnit environment.
+     *
+     * @covers \mod_yesno\AiBridge::perform_request
+     */
+    public function test_perform_request_returns_string_in_test_env(): void {
+
+        xdebug_break();
+        $bridge = new AiBridge(1);
+        $result = $bridge->perform_request('Is it a fruit?');
+        $this->assertIsString($result, 'perform_request must return a string.');
+    }
+
+    /**
+     * Test that perform_request returns the expected stub response during PHPUnit runs.
+     *
+     * The method short-circuits and returns "AI Feedback" whenever PHPUNIT_TEST is
+     * defined and truthy, so no real AI backend is contacted in tests.
+     *
+     * @covers \mod_yesno\AiBridge::perform_request
+     */
+    public function test_perform_request_returns_stub_in_phpunit(): void {
+        $bridge = new AiBridge(1);
+        $result = $bridge->perform_request('Is it an animal?');
+        $this->assertEquals('AI Feedback', $result, 'Stub response must be "AI Feedback" in test environment.');
+    }
+
+    /**
+     * Test that the purpose parameter is accepted without error.
+     *
+     * The default purpose is 'feedback'; verify an explicit value is also accepted.
+     *
+     * @covers \mod_yesno\AiBridge::perform_request
+     */
+    public function test_perform_request_accepts_custom_purpose(): void {
+        $bridge = new AiBridge(1);
+        $result = $bridge->perform_request('Is it a vegetable?', 'hint');
+        $this->assertEquals('AI Feedback', $result, 'Stub response must be "AI Feedback" regardless of purpose.');
+    }
+
+    /**
+     * Test that perform_request works with different context IDs.
+     *
+     * @covers \mod_yesno\AiBridge::perform_request
+     */
+    public function test_perform_request_with_different_context_ids(): void {
+        $contextids = [1, 42, 999];
+        foreach ($contextids as $contextid) {
+            $bridge = new AiBridge($contextid);
+            $result = $bridge->perform_request('Is it bigger than a breadbox?');
+            $this->assertEquals(
+                'AI Feedback',
+                $result,
+                "Stub response must be consistent for context ID {$contextid}."
+            );
+        }
+    }
+
+    /**
+     * Test that perform_request handles an empty prompt string.
+     *
+     * @covers \mod_yesno\AiBridge::perform_request
+     */
+    public function test_perform_request_with_empty_prompt(): void {
+        $bridge = new AiBridge(1);
+        $result = $bridge->perform_request('');
+        $this->assertEquals('AI Feedback', $result, 'Stub response must be "AI Feedback" even for an empty prompt.');
+    }
+}

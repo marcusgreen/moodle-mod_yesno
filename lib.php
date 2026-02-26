@@ -144,8 +144,8 @@ function yesno_render_last_response(?stdClass $userattempt, context_module $modu
         'history_items' => [[
             'question' => format_text($lastitem['question'], FORMAT_PLAIN),
             'response' => format_text($lastitem['response'], FORMAT_PLAIN),
-            'timestamp' => userdate($lastitem['timestamp'])
-        ]]
+            'timestamp' => userdate($lastitem['timestamp']),
+        ]],
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/conversation_history', $data);
