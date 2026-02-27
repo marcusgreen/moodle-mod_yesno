@@ -25,6 +25,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/modinfolib.php');
 require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/classes/lib.php');
 
 // Course module id.
 $id = optional_param('id', 0, PARAM_INT);
@@ -80,26 +81,14 @@ echo html_writer::tag(
     ['class' => 'yesno-description']
 );
 
-// Get current user's attempt record.
-$userattempt = $DB->get_record('yesno_attempts', [
-    'userid' => $USER->id,
-    'yesnoid' => $yesno->id,
-]);
-if (!$userattempt) {
-    $userattempt = null;
-}
-
-// Initialize question count and check game status.
-$questioncount = 0;
-$score = 0;
-$gamefinished = false;
-
-if ($userattempt) {
-    $questioncount = $userattempt->question_count;
-    // Handle case where score field doesn't exist yet (before database upgrade).
-    $score = isset($userattempt->score) ? $userattempt->score : 0;
-    $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
-}
+// Load current user's attempt state.
+$attemptstate = \mod_yesno\lib::load_attempt_state($yesno, $USER->id);
+[
+    'userattempt' => $userattempt,
+    'questioncount' => $questioncount,
+    'score' => $score,
+    'gamefinished' => $gamefinished,
+] = $attemptstate;
 
 // Display attempt information using mustache template.
 echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
@@ -110,95 +99,21 @@ $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 if (!empty($studentquestion) && confirm_sesskey()) {
     require_sesskey();
 
-    // Check if user has remaining attempts and game is not finished.
-    if ($questioncount < $yesno->maxquestions && !$gamefinished) {
-        $airesponse = '';
-        $iscorrect = false;
-
-        // If the student's question is the same as the secret word, they win.
-        if (strcasecmp(trim($studentquestion), $yesno->secret) == 0) {
-            $airesponse = "Yes you have guessed the secret";
-            $iscorrect = true;
-        } else if (stripos(trim($studentquestion), $yesno->secret) !== false) {
-            $airesponse = "You have found the secret!";
-            $iscorrect = true;
-        } else {
-            try {
-                // Combine student question with system prompt.
-                $promptwithsecret = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt);
-                $questionprefix = get_string('studentquestionprefix', 'yesno');
-                $combinedprompt = $promptwithsecret . "\n\n" . $questionprefix . ": " . $studentquestion;
-
-                // Use the AI bridge to get response.
-                require_once(__DIR__ . '/classes/aibridge.php');
-                $aibridge = new \mod_yesno\AiBridge($modulecontext->id);
-                $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
-            } catch (Exception $e) {
-                echo html_writer::start_tag('div', ['class' => 'alert alert-danger']);
-                echo html_writer::tag('p', get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage());
-                echo html_writer::end_tag('div');
-            }
-        }
-
-        if (!empty($airesponse)) {
-            // Update attempt record.
-            $attemptdata = new stdClass();
-            $attemptdata->userid = $USER->id;
-            $attemptdata->yesnoid = $yesno->id;
-            $attemptdata->question_count = $questioncount + 1;
-            $attemptdata->timemodified = time();
-
-            // Initialize history if this is the first attempt.
-            $history = [];
-            if ($userattempt && !empty($userattempt->history)) {
-                $history = json_decode($userattempt->history, true);
-            }
-
-            // Add current question and response to history.
-            $history[] = [
-                'question' => $studentquestion,
-                'response' => $airesponse,
-                'timestamp' => time(),
-            ];
-
-            // Process the attempt and calculate the score.
-            $currentquestion = count($history);
-            $processedattempt = yesno_process_attempt($yesno, $studentquestion, $airesponse, $currentquestion, $iscorrect);
-            $score = $processedattempt['score'];
-            $attemptdata->status = $processedattempt['status'];
-
-            // Set the score in the attempt data.
-            $attemptdata->score = $score;
-
-            $attemptdata->history = json_encode($history);
-
-            // Save or update the attempt record.
-            if ($userattempt) {
-                $attemptdata->id = $userattempt->id;
-                $DB->update_record('yesno_attempts', $attemptdata);
-            } else {
-                $DB->insert_record('yesno_attempts', $attemptdata);
-            }
-
-            // Update Moodle gradebook if the game is finished.
-            if ($attemptdata->status === 'win' || $attemptdata->status === 'loss') {
-                yesno_update_gradebook($yesno, $USER->id, $score);
-            }
-
-            // Refresh the attempt data.
-            $userattempt = $DB->get_record('yesno_attempts', [
-                'userid' => $USER->id,
-                'yesnoid' => $yesno->id,
-            ]);
-            $questioncount = $userattempt->question_count;
-            $score = isset($userattempt->score) ? $userattempt->score : 0;
-            $gamefinished = ($userattempt->status === 'win' || $userattempt->status === 'loss');
-        }
-    } else {
-        echo html_writer::start_tag('div', ['class' => 'alert alert-warning']);
-        echo html_writer::tag('p', get_string('maxquestionsreached', 'yesno'));
-        echo html_writer::end_tag('div');
-    }
+    // Process form submission through class handler.
+    $attemptstate = \mod_yesno\lib::handle_submission(
+        $yesno,
+        $modulecontext,
+        $userattempt,
+        $questioncount,
+        $gamefinished,
+        $studentquestion
+    );
+    [
+        'userattempt' => $userattempt,
+        'questioncount' => $questioncount,
+        'score' => $score,
+        'gamefinished' => $gamefinished,
+    ] = $attemptstate;
 }
 
 // Display most recent submission and response above the textarea.
