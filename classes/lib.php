@@ -231,7 +231,7 @@ class lib {
                 $combinedprompt = self::build_ai_prompt($yesno, $studentquestion);
 
                 // Use the AI bridge to get response.
-                require_once(__DIR__ . '/aibridge.php');
+                require_once(__DIR__ . '/AiBridge.php');
                 $aibridge = new \mod_yesno\AiBridge($modulecontext->id);
                 $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
             } catch (Exception $e) {

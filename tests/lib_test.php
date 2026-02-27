@@ -99,14 +99,12 @@ final class lib_test extends advanced_testcase {
 
         // Create a yesno activity with a known secret.
         $secret = 'elephant';
-        xdebug_break();
         $yesno = $this->getDataGenerator()->create_module('yesno', [
             'course' => $course->id,
             'name' => 'Test Yesno Activity',
             'secret' => $secret,
             'maxquestions' => 10,
         ]);
-
         // Get module context.
         $cm = get_coursemodule_from_instance('yesno', $yesno->id);
         $context = \context_module::instance($cm->id);
@@ -126,5 +124,18 @@ final class lib_test extends advanced_testcase {
         $this->assertEquals(1, $result['questioncount'], 'Question count should be 1');
         $this->assertTrue($result['gamefinished'], 'Game should be finished with correct guess');
         $this->assertGreaterThan(0, $result['score'], 'Score should be greater than 0');
+
+        // Initial state: no attempt, no questions asked.
+        $studentguess = "Is it a cat";
+        xdebug_break();
+
+        $result = lib::handle_submission(
+            $yesno,
+            $context,
+            null,
+            0,
+            false,
+            $studentguess
+        );
     }
 }
