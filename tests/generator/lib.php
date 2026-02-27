@@ -59,6 +59,9 @@ class mod_yesno_generator extends testing_module_generator {
         if (empty($record->secret)) {
             $record->secret = 'secret';
         }
+        if (empty($record->system_prompt)) {
+            $record->system_prompt = get_config('mod_yesno', 'defaultprompt');
+        }
         // Optional editor fields – ensure they are stored as plain text.
         if (isset($record->clue) && is_array($record->clue)) {
             $record->clue = $record->clue['text'];
