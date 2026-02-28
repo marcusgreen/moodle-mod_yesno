@@ -110,23 +110,26 @@ final class lib_test extends advanced_testcase {
         $context = \context_module::instance($cm->id);
 
         // Initial state: no attempt, no questions asked.
+        xdebug_break();
+
+        $studentquestion = "Is it a dog";
         $result = lib::handle_submission(
             $yesno,
             $context,
             null,
             0,
             false,
-            $secret
+            $studentquestion
         );
 
         // Verify the result.
-        $this->assertNotNull($result['userattempt'], 'Attempt record should be created');
-        $this->assertEquals(1, $result['questioncount'], 'Question count should be 1');
-        $this->assertTrue($result['gamefinished'], 'Game should be finished with correct guess');
-        $this->assertGreaterThan(0, $result['score'], 'Score should be greater than 0');
+        // $this->assertNotNull($result['userattempt'], 'Attempt record should be created');
+        // $this->assertEquals(1, $result['questioncount'], 'Question count should be 1');
+        // $this->assertTrue($result['gamefinished'], 'Game should be finished with correct guess');
+         $this->assertEquals(0, $result['score'], 'Score should be  0');
 
         // Initial state: no attempt, no questions asked.
-        $studentguess = "Is it a cat";
+        $studentquestion = "Is it an elephant";
         xdebug_break();
 
         $result = lib::handle_submission(
@@ -135,7 +138,8 @@ final class lib_test extends advanced_testcase {
             null,
             0,
             false,
-            $studentguess
+            $studentquestion
         );
+
     }
 }

@@ -44,7 +44,6 @@ if ($id) {
 }
 
 $modulecontext = context_module::instance($cm->id);
-
 require_login($course, true, $cm);
 $PAGE->set_url('/mod/yesno/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($yesno->name));
@@ -80,6 +79,7 @@ echo html_writer::tag(
     get_string('activitydescription', 'yesno'),
     ['class' => 'yesno-description']
 );
+xdebug_break();
 
 // Load current user's attempt state.
 $attemptstate = \mod_yesno\lib::load_attempt_state($yesno, $USER->id);
@@ -98,7 +98,7 @@ $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 
 if (!empty($studentquestion) && confirm_sesskey()) {
     require_sesskey();
-
+    xdebug_break();
     // Process form submission through class handler.
     $attemptstate = \mod_yesno\lib::handle_submission(
         $yesno,

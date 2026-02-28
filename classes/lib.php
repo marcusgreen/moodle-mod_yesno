@@ -188,9 +188,9 @@ class lib {
     /**
      * Handle the form submission and process the student's question.
      *
-     * @param stdClass $yesno The yesno activity object.
-     * @param stdClass $modulecontext The module context.
-     * @param stdClass|null $userattempt The current attempt record.
+     * @param \stdClass $yesno The yesno activity object.
+     * @param \stdClass $modulecontext The module context.
+     * @param \stdClass|null $userattempt The current attempt record.
      * @param int $questioncount The current question count.
      * @param bool $gamefinished Whether the game is finished.
      * @param string $studentquestion The student's submitted question.

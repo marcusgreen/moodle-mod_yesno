@@ -51,7 +51,7 @@ class AiBridge {
             $manager = new \local_ai_manager\manager($purpose);
             $llmresponse = (object) $manager->perform_request($prompt, 'qtype_aitext', $this->contextid);
             if ($llmresponse->get_code() !== 200) {
-                throw new moodle_exception(
+                throw new \moodle_exception(
                     'err_retrievingfeedback',
                     'qtype_aitext',
                     '',
