@@ -64,24 +64,6 @@ class lib {
     }
 
     /**
-     * Check if student's question is a direct match to the secret word.
-     *
-     * @param string $studentquestion The student's question.
-     * @param string $secret The secret word.
-     * @return string|null The AI response string if direct win detected, null otherwise.
-     */
-    public static function check_direct_win(string $studentquestion, string $secret): ?string {
-        // If the student's question is the same as the secret word, they win.
-        if (strcasecmp(trim($studentquestion), $secret) == 0) {
-            return "Yes you have guessed the secret";
-        }
-        if (stripos(trim($studentquestion), $secret) !== false) {
-            return "You have found the secret!";
-        }
-        return null;
-    }
-
-    /**
      * Build the combined AI prompt from template and student question.
      *
      * @param stdClass $yesno The yesno activity object.
@@ -97,9 +79,9 @@ class lib {
     /**
      * Save or update attempt record in the database.
      *
-     * @param stdClass $yesno The yesno activity object.
+     * @param \stdClass $yesno The yesno activity object.
      * @param int $userid The user ID.
-     * @param stdClass|null $userattempt The current attempt record or null.
+     * @param \stdClass|null $userattempt The current attempt record or null.
      * @param int $questioncount The question number.
      * @param string $studentquestion The student's question.
      * @param string $airesponse The AI response.
@@ -214,28 +196,20 @@ class lib {
         }
 
         $airesponse = '';
-        $iscorrect = false;
 
-        // Check for direct win first.
-        $directwin = self::check_direct_win($studentquestion, $yesno->secret);
-        if ($directwin !== null) {
-            $airesponse = $directwin;
-            $iscorrect = true;
-        } else {
-            // Not a direct win, call AI for response.
-            try {
-                $combinedprompt = self::build_ai_prompt($yesno, $studentquestion);
+        // Always use the AI bridge to evaluate the student's input.
+        try {
+            $combinedprompt = self::build_ai_prompt($yesno, $studentquestion);
 
-                // Use the AI bridge to get response.
-                require_once(__DIR__ . '/AiBridge.php');
-                $aibridge = new \mod_yesno\AiBridge($modulecontext->id);
-                $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
-            } catch (Exception $e) {
-                echo $OUTPUT->notification(
-                    get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage(),
-                    'error'
-                );
-            }
+            // Use the AI bridge to get response.
+            require_once(__DIR__ . '/AiBridge.php');
+            $aibridge = new \mod_yesno\AiBridge($modulecontext->id);
+            $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
+        } catch (Exception $e) {
+            echo $OUTPUT->notification(
+                get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage(),
+                'error'
+            );
         }
 
         // If we have an AI response, save the attempt.
@@ -247,7 +221,7 @@ class lib {
                 $questioncount,
                 $studentquestion,
                 $airesponse,
-                $iscorrect
+                false
             );
             $result['airesponse'] = $airesponse;
             return $result;
