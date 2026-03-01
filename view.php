@@ -85,10 +85,7 @@ $questioncount = $attemptstate['questioncount'];
 $score = $attemptstate['score'];
 $gamefinished = $attemptstate['gamefinished'];
 
-// Display attempt information using mustache template.
-echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
-
-// Handle form submission.
+// Handle form submission BEFORE displaying attempt info.
 $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 
 if (!empty($studentquestion) && confirm_sesskey()) {
@@ -106,6 +103,9 @@ if (!empty($studentquestion) && confirm_sesskey()) {
     $score = $attemptstate['score'];
     $gamefinished = $attemptstate['gamefinished'];
 }
+
+// Display attempt information using mustache template (after handling submission).
+echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
 
 // Display most recent submission and response above the textarea.
 echo yesno_render_last_response($userattempt, $modulecontext);

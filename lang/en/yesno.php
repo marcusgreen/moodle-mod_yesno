@@ -73,4 +73,4 @@ $string['viewmsg'] = 'You can view this activity.';
 $string['yesnoname'] = 'Activity name';
 $string['yesnoname_help'] = 'The name of this Twenty Questions activity';
 $string['yourquestion'] = 'Your question';
-$string['yourquestion_help'] = 'Your question help string';
+$string['yourquestion_help'] = 'Ask a yes/no question to help you guess the secret word. Your question must be answerable with "Yes", "No", or "No answer possible". You must ask only one question at a time, and questions are limited by the character count shown above. The AI will evaluate each question and provide a response to help you narrow down the possibilities. Ask strategic questions that help eliminate possibilities and be as specific as possible.';
