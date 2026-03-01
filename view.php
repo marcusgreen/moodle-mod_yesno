@@ -26,22 +26,13 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/modinfolib.php');
 require_once(__DIR__ . '/lib.php');
 require_once(__DIR__ . '/classes/lib.php');
+use mod_yesno\lib;
 
 // Course module id.
-$id = optional_param('id', 0, PARAM_INT);
+$id = required_param('id', PARAM_INT);
 
-// Activity instance id.
-$y = optional_param('y', 0, PARAM_INT);
-
-if ($id) {
-    [$course, $cm] = get_course_and_cm_from_cmid($id, 'yesno');
-    $yesno = $DB->get_record('yesno', ['id' => $cm->instance], '*', MUST_EXIST);
-} else if ($y) {
-    $yesno = $DB->get_record('yesno', ['id' => $y], '*', MUST_EXIST);
-    [$course, $cm] = get_course_and_cm_from_instance($y, 'yesno');
-} else {
-    throw new moodle_exception('missingparameter');
-}
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'yesno');
+$yesno = $DB->get_record('yesno', ['id' => $cm->instance], '*', MUST_EXIST);
 
 $modulecontext = context_module::instance($cm->id);
 require_login($course, true, $cm);
@@ -79,16 +70,13 @@ echo html_writer::tag(
     get_string('activitydescription', 'yesno'),
     ['class' => 'yesno-description']
 );
-xdebug_break();
 
 // Load current user's attempt state.
-$attemptstate = \mod_yesno\lib::load_attempt_state($yesno, $USER->id);
-[
-    'userattempt' => $userattempt,
-    'questioncount' => $questioncount,
-    'score' => $score,
-    'gamefinished' => $gamefinished,
-] = $attemptstate;
+$attemptstate = lib::load_attempt_state($yesno, $USER->id);
+$userattempt = $attemptstate['userattempt'];
+$questioncount = $attemptstate['questioncount'];
+$score = $attemptstate['score'];
+$gamefinished = $attemptstate['gamefinished'];
 
 // Display attempt information using mustache template.
 echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
@@ -97,10 +85,8 @@ echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $
 $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 
 if (!empty($studentquestion) && confirm_sesskey()) {
-    require_sesskey();
-    xdebug_break();
     // Process form submission through class handler.
-    $attemptstate = \mod_yesno\lib::handle_submission(
+    $attemptstate = lib::handle_submission(
         $yesno,
         $modulecontext,
         $userattempt,
@@ -108,12 +94,10 @@ if (!empty($studentquestion) && confirm_sesskey()) {
         $gamefinished,
         $studentquestion
     );
-    [
-        'userattempt' => $userattempt,
-        'questioncount' => $questioncount,
-        'score' => $score,
-        'gamefinished' => $gamefinished,
-    ] = $attemptstate;
+    $userattempt = $attemptstate['userattempt'];
+    $questioncount = $attemptstate['questioncount'];
+    $score = $attemptstate['score'];
+    $gamefinished = $attemptstate['gamefinished'];
 }
 
 // Display most recent submission and response above the textarea.

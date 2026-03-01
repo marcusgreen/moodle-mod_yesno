@@ -96,7 +96,7 @@ final class lib_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
-
+        xdebug_break();
         // Create a yesno activity with a known secret.
         $secret = 'elephant';
         $yesno = $this->getDataGenerator()->create_module('yesno', [
@@ -108,26 +108,26 @@ final class lib_test extends advanced_testcase {
         // Get module context.
         $cm = get_coursemodule_from_instance('yesno', $yesno->id);
         $context = \context_module::instance($cm->id);
+         // Load the attempt state to verify it was saved correctly.
+        $attemptstate = lib::load_attempt_state($yesno, $user->id);
+        $userattempt = $attemptstate['userattempt'];
 
         // Initial state: no attempt, no questions asked.
-        xdebug_break();
 
         $studentquestion = "Is it a dog";
         $result = lib::handle_submission(
             $yesno,
             $context,
-            null,
+            $userattempt,
             0,
             false,
             $studentquestion
         );
 
-        // Verify the result.
-        // $this->assertNotNull($result['userattempt'], 'Attempt record should be created');
-        // $this->assertEquals(1, $result['questioncount'], 'Question count should be 1');
-        // $this->assertTrue($result['gamefinished'], 'Game should be finished with correct guess');
-         $this->assertEquals(0, $result['score'], 'Score should be  0');
+        $this->assertEquals(0, $result['score'], 'Score should be  0');
 
+        $attemptstate = lib::load_attempt_state($yesno, $user->id);
+        $userattempt = $attemptstate['userattempt'];
         // Initial state: no attempt, no questions asked.
         $studentquestion = "Is it an elephant";
         xdebug_break();
@@ -135,11 +135,12 @@ final class lib_test extends advanced_testcase {
         $result = lib::handle_submission(
             $yesno,
             $context,
-            null,
+            $userattempt,
             0,
             false,
             $studentquestion
         );
+
 
     }
 }

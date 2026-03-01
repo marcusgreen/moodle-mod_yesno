@@ -27,7 +27,7 @@ class lib {
     /**
      * Load attempt state for a user in a yesno activity.
      *
-     * @param stdClass $yesno The yesno activity object.
+     * @param \stdClass $yesno The yesno activity object.
      * @param int $userid The user ID.
      * @return array Array with keys: userattempt, questioncount, score, gamefinished.
      */
