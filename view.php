@@ -71,6 +71,13 @@ echo html_writer::tag(
     ['class' => 'yesno-description']
 );
 
+// Handle reset request (teachers only) - do this BEFORE loading attempt state.
+$resetuser = optional_param('resetuser', 0, PARAM_INT);
+if ($resetuser && $canmanage && confirm_sesskey()) {
+    yesno_reset_attempt($yesno, $USER->id);
+    echo $OUTPUT->notification(get_string('sessionreset', 'yesno'), 'success');
+}
+
 // Load current user's attempt state.
 $attemptstate = lib::load_attempt_state($yesno, $USER->id);
 $userattempt = $attemptstate['userattempt'];
@@ -102,6 +109,11 @@ if (!empty($studentquestion) && confirm_sesskey()) {
 
 // Display most recent submission and response above the textarea.
 echo yesno_render_last_response($userattempt, $modulecontext);
+
+// Display reset button for teachers.
+if ($canmanage && $userattempt) {
+    echo yesno_render_reset_button($modulecontext);
+}
 
 // Student question input form using mustache template.
 if (!$gamefinished) {

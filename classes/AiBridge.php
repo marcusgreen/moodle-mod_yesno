@@ -62,6 +62,7 @@ class AiBridge {
             return $llmresponse->get_content();
         } else if ($backend == 'core_ai_subsystem') {
             global $USER;
+            xdebug_break();
             $action = new \core_ai\aiactions\generate_text(
                 contextid: $this->contextid,
                 userid: $USER->id,

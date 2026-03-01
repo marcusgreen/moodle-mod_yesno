@@ -60,7 +60,17 @@ function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool 
 function yesno_delete_instance(int $id): bool {
     global $DB;
 
-    // Deleting the record.
+    // Delete history rows for all attempts of this instance.
+    $attemptids = $DB->get_fieldset_select('yesno_attempts', 'id', 'yesnoid = ?', [$id]);
+    if (!empty($attemptids)) {
+        [$insql, $inparams] = $DB->get_in_or_equal($attemptids);
+        $DB->delete_records_select('yesno_history', "attemptid $insql", $inparams);
+    }
+
+    // Delete attempts for this instance.
+    $DB->delete_records('yesno_attempts', ['yesnoid' => $id]);
+
+    // Delete the activity instance.
     $DB->delete_records('yesno', ['id' => $id]);
 
     return true;
@@ -124,27 +134,27 @@ function yesno_render_attempt_info(stdClass $yesno, int $questioncount, int $sco
  * @package mod_yesno
  */
 function yesno_render_last_response(?stdClass $userattempt, context_module $modulecontext): string {
-    global $OUTPUT;
+    global $OUTPUT, $DB;
 
-    if (!$userattempt || empty($userattempt->history)) {
+    if (!$userattempt) {
         return '';
     }
 
-    $history = json_decode($userattempt->history, true);
-    if (!is_array($history) || count($history) === 0) {
+    $historyrows = $DB->get_records('yesno_history', ['attemptid' => $userattempt->id], 'id DESC', '*', 0, 1);
+    if (empty($historyrows)) {
         return '';
     }
 
-    $lastitem = end($history);
+    $lastitem = reset($historyrows);
 
     $data = [
         'has_history' => true,
         'your_question_label' => get_string('yourquestion', 'yesno'),
         'ai_response_label' => get_string('airesponse', 'yesno'),
         'history_items' => [[
-            'question' => format_text($lastitem['question'], FORMAT_PLAIN),
-            'response' => format_text($lastitem['response'], FORMAT_PLAIN),
-            'timestamp' => userdate($lastitem['timestamp']),
+            'question' => format_text($lastitem->question, FORMAT_PLAIN),
+            'response' => format_text($lastitem->response, FORMAT_PLAIN),
+            'timestamp' => userdate($lastitem->timecreated),
         ]],
     ];
 
@@ -160,27 +170,27 @@ function yesno_render_last_response(?stdClass $userattempt, context_module $modu
  * @package mod_yesno
  */
 function yesno_render_conversation_history(?stdClass $userattempt, context_module $modulecontext): string {
-    global $OUTPUT;
+    global $OUTPUT, $DB;
 
-    if (!$userattempt || empty($userattempt->history)) {
+    if (!$userattempt) {
         return '';
     }
 
-    $history = json_decode($userattempt->history, true);
-    if (!is_array($history) || count($history) < 2) {
+    $historyrows = $DB->get_records('yesno_history', ['attemptid' => $userattempt->id], 'id ASC');
+    if (count($historyrows) < 2) {
         return '';
     }
 
-    // Reverse the history array to show most recent responses at the top.
-    array_pop($history);
-    $history = array_reverse($history);
+    // Remove the last item (most recent) and reverse to show newest first (excluding current).
+    array_pop($historyrows);
+    $historyrows = array_reverse($historyrows);
 
     $historyitems = [];
-    foreach ($history as $item) {
+    foreach ($historyrows as $item) {
         $historyitems[] = [
-            'question' => format_text($item['question'], FORMAT_PLAIN),
-            'response' => format_text($item['response'], FORMAT_PLAIN),
-            'timestamp' => userdate($item['timestamp']),
+            'question' => format_text($item->question, FORMAT_PLAIN),
+            'response' => format_text($item->response, FORMAT_PLAIN),
+            'timestamp' => userdate($item->timecreated),
         ];
     }
 
@@ -193,6 +203,28 @@ function yesno_render_conversation_history(?stdClass $userattempt, context_modul
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/conversation_history', $data);
+}
+
+/**
+ * Render reset button for teachers
+ *
+ * @param context_module $modulecontext
+ * @return string HTML output of reset button
+ * @package mod_yesno
+ */
+function yesno_render_reset_button(context_module $modulecontext): string {
+    global $OUTPUT;
+
+    $reseturl = new moodle_url($modulecontext->get_url(), ['resetuser' => 1, 'sesskey' => sesskey()]);
+    $confirmtext = get_string('resetconfirm', 'yesno');
+
+    $data = [
+        'reset_button_url' => $reseturl->out(false),
+        'reset_button_text' => get_string('resetsession', 'yesno'),
+        'reset_confirm_text_json' => json_encode($confirmtext),
+    ];
+
+    return $OUTPUT->render_from_template('mod_yesno/reset_button', $data);
 }
 
 /**
@@ -314,5 +346,38 @@ function yesno_update_gradebook(stdClass $yesno, int $userid, float $score): boo
     $grade->timemodified = time();
 
     grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, $grade);
+    return true;
+}
+
+/**
+ * Reset a user's attempt for a yesno activity.
+ *
+ * @param object $yesno The yesno activity object.
+ * @param int $userid The user's ID.
+ * @return bool True if successful.
+ */
+function yesno_reset_attempt(stdClass $yesno, int $userid): bool {
+    global $DB, $CFG;
+
+    // Get the attempt record.
+    $attempt = $DB->get_record('yesno_attempts', [
+        'userid' => $userid,
+        'yesnoid' => $yesno->id,
+    ]);
+
+    if (!$attempt) {
+        return true; // No attempt to reset.
+    }
+
+    // Delete history entries for this attempt.
+    $DB->delete_records('yesno_history', ['attemptid' => $attempt->id]);
+
+    // Delete the attempt record.
+    $DB->delete_records('yesno_attempts', ['id' => $attempt->id]);
+
+    // Reset the gradebook.
+    require_once($CFG->libdir . '/gradelib.php');
+    grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, null, ['userid' => $userid]);
+
     return true;
 }

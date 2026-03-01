@@ -31,7 +31,6 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
         <FIELD NAME="yesnoid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link to the yesno instance"/>
-        <FIELD NAME="history" TYPE="text" LENGHT="medium" NOTNULL="false" COMMENT="JSON encoded array of the conversation"/>
         <FIELD NAME="question_count" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active" COMMENT="active, win, loss"/>
         <FIELD NAME="score" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" COMMENT="Current score for this attempt"/>
@@ -44,6 +43,20 @@
       <INDEXES>
         <INDEX NAME="user_instance" UNIQUE="false" FIELDS="userid, yesnoid"/>
       </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="yesno_history" COMMENT="Individual question/response entries for each attempt">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link to the yesno_attempts instance"/>
+        <FIELD NAME="question" TYPE="text" NOTNULL="false" COMMENT="The student's question"/>
+        <FIELD NAME="response" TYPE="text" NOTNULL="false" COMMENT="The AI response"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_attempt" TYPE="foreign" FIELDS="attemptid" REFTABLE="yesno_attempts" REFFIELDS="id"/>
+      </KEYS>
     </TABLE>
   </TABLES>
 </XMLDB>

@@ -114,7 +114,7 @@ final class lib_test extends advanced_testcase {
 
         // Initial state: no attempt, no questions asked.
 
-        $studentquestion = "Is it a dog";
+        $studentquestion = "Is it a dog or a cat";
         $result = lib::handle_submission(
             $yesno,
             $context,
@@ -140,7 +140,5 @@ final class lib_test extends advanced_testcase {
             false,
             $studentquestion
         );
-
-
     }
 }

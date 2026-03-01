@@ -124,21 +124,8 @@ class lib {
         $attemptdata->question_count = $questioncount + 1;
         $attemptdata->timemodified = time();
 
-        // Initialize history if this is the first attempt.
-        $history = [];
-        if ($userattempt && !empty($userattempt->history)) {
-            $history = json_decode($userattempt->history, true);
-        }
-
-        // Add current question and response to history.
-        $history[] = [
-            'question' => $studentquestion,
-            'response' => $airesponse,
-            'timestamp' => time(),
-        ];
-
         // Process the attempt and calculate the score.
-        $currentquestion = count($history);
+        $currentquestion = $questioncount + 1;
         $processedattempt = yesno_process_attempt(
             $yesno,
             $studentquestion,
@@ -149,15 +136,23 @@ class lib {
         $score = $processedattempt['score'];
         $attemptdata->status = $processedattempt['status'];
         $attemptdata->score = $score;
-        $attemptdata->history = json_encode($history);
 
         // Save or update the attempt record.
         if ($userattempt) {
             $attemptdata->id = $userattempt->id;
             $DB->update_record('yesno_attempts', $attemptdata);
+            $attemptid = $userattempt->id;
         } else {
-            $DB->insert_record('yesno_attempts', $attemptdata);
+            $attemptid = $DB->insert_record('yesno_attempts', $attemptdata);
         }
+
+        // Record this question/response in the history table.
+        $historyrow = new \stdClass();
+        $historyrow->attemptid = $attemptid;
+        $historyrow->question = $studentquestion;
+        $historyrow->response = $airesponse;
+        $historyrow->timecreated = time();
+        $DB->insert_record('yesno_history', $historyrow);
 
         // Update Moodle gradebook if the game is finished.
         if ($attemptdata->status === 'win' || $attemptdata->status === 'loss') {
@@ -214,6 +209,7 @@ class lib {
                 'questioncount' => $questioncount,
                 'score' => $userattempt ? (isset($userattempt->score) ? $userattempt->score : 0) : 0,
                 'gamefinished' => $gamefinished,
+                'airesponse' => '',
             ];
         }
 
@@ -244,7 +240,7 @@ class lib {
 
         // If we have an AI response, save the attempt.
         if (!empty($airesponse)) {
-            return self::save_attempt(
+            $result = self::save_attempt(
                 $yesno,
                 $USER->id,
                 $userattempt,
@@ -253,6 +249,8 @@ class lib {
                 $airesponse,
                 $iscorrect
             );
+            $result['airesponse'] = $airesponse;
+            return $result;
         }
 
         return [
@@ -260,6 +258,7 @@ class lib {
             'questioncount' => $questioncount,
             'score' => $userattempt ? (isset($userattempt->score) ? $userattempt->score : 0) : 0,
             'gamefinished' => $gamefinished,
+            'airesponse' => '',
         ];
     }
 }
