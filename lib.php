@@ -41,12 +41,15 @@ function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool 
         $data->system_prompt = $data->system_prompt['text'];
     }
 
-    // Extract secret and clue before updating main record.
-    $secret = $data->secret ?? '';
-    if (isset($data->clue) && is_array($data->clue)) {
-        $clue = $data->clue['text'];
-    } else {
-        $clue = $data->clue ?? null;
+    // Extract secrets and clues before updating main record.
+    $secrets = $data->secret ?? [];
+    if (!is_array($secrets)) {
+        $secrets = [$secrets];
+    }
+
+    $clues = $data->clue ?? [];
+    if (!is_array($clues)) {
+        $clues = [$clues];
     }
 
     // Unset these from the main record before update.
@@ -56,18 +59,30 @@ function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool 
     // Update main yesno record.
     $result = $DB->update_record('yesno', $data);
 
-    // Update or insert secret and clue in yesno_secrets table.
-    $secretrecord = $DB->get_record('yesno_secrets', ['yesnoid' => $data->id]);
-    if ($secretrecord) {
-        $secretrecord->secret = $secret;
-        $secretrecord->clue = $clue;
-        $DB->update_record('yesno_secrets', $secretrecord);
-    } else {
-        $secretrecord = new stdClass();
-        $secretrecord->yesnoid = $data->id;
-        $secretrecord->secret = $secret;
-        $secretrecord->clue = $clue;
-        $DB->insert_record('yesno_secrets', $secretrecord);
+    // Delete old secrets for this instance.
+    $DB->delete_records('yesno_secrets', ['yesnoid' => $data->id]);
+
+    // Insert new secrets and clues.
+    foreach ($secrets as $index => $secret) {
+        if (!empty($secret)) {
+            $secretrecord = new stdClass();
+            $secretrecord->yesnoid = $data->id;
+            $secretrecord->secret = $secret;
+
+            // Handle editor field format.
+            if (isset($clues[$index])) {
+                if (is_array($clues[$index])) {
+                    $secretrecord->clue = $clues[$index]['text'];
+                } else {
+                    $secretrecord->clue = $clues[$index];
+                }
+            } else {
+                $secretrecord->clue = null;
+            }
+
+            $secretrecord->sortorder = $index;
+            $DB->insert_record('yesno_secrets', $secretrecord);
+        }
     }
 
     return $result;
@@ -309,12 +324,15 @@ function yesno_add_instance(stdClass $yesno): int {
         $yesno->system_prompt = get_config('mod_yesno', 'defaultprompt');
     }
 
-    // Extract secret and clue before inserting main record.
-    $secret = $yesno->secret ?? '';
-    if (isset($yesno->clue) && is_array($yesno->clue)) {
-        $clue = $yesno->clue['text'];
-    } else {
-        $clue = $yesno->clue ?? null;
+    // Extract secrets and clues before inserting main record.
+    $secrets = $yesno->secret ?? [];
+    if (!is_array($secrets)) {
+        $secrets = [$secrets];
+    }
+
+    $clues = $yesno->clue ?? [];
+    if (!is_array($clues)) {
+        $clues = [$clues];
     }
 
     // Unset these from the main record before insert.
@@ -324,12 +342,28 @@ function yesno_add_instance(stdClass $yesno): int {
     // Insert main yesno record.
     $yesnoid = $DB->insert_record('yesno', $yesno);
 
-    // Insert secret and clue into yesno_secrets table.
-    $secretrecord = new stdClass();
-    $secretrecord->yesnoid = $yesnoid;
-    $secretrecord->secret = $secret;
-    $secretrecord->clue = $clue;
-    $DB->insert_record('yesno_secrets', $secretrecord);
+    // Insert secrets and clues into yesno_secrets table.
+    foreach ($secrets as $index => $secret) {
+        if (!empty($secret)) {
+            $secretrecord = new stdClass();
+            $secretrecord->yesnoid = $yesnoid;
+            $secretrecord->secret = $secret;
+
+            // Handle editor field format.
+            if (isset($clues[$index])) {
+                if (is_array($clues[$index])) {
+                    $secretrecord->clue = $clues[$index]['text'];
+                } else {
+                    $secretrecord->clue = $clues[$index];
+                }
+            } else {
+                $secretrecord->clue = null;
+            }
+
+            $secretrecord->sortorder = $index;
+            $DB->insert_record('yesno_secrets', $secretrecord);
+        }
+    }
 
     return $yesnoid;
 }
@@ -345,11 +379,24 @@ function yesno_add_instance(stdClass $yesno): int {
  * @return array An array containing the calculated score and the game status.
  */
 function yesno_process_attempt(stdClass $yesno, string $studentquestion, string $airesponse, int $currentquestion, bool $iscorrect = false): array {
-    // Check if the AI response indicates the target word was found.
+    // Check if the AI response indicates any target word was found.
     if (!$iscorrect) {
         $airesponselower = strtolower($airesponse);
-        $targetwordlower = strtolower($yesno->secret);
-        $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
+
+        // Check if any secret word appears in the response.
+        if (!empty($yesno->secrets) && is_array($yesno->secrets)) {
+            foreach ($yesno->secrets as $secret) {
+                $targetwordlower = strtolower($secret);
+                if (strpos($airesponselower, $targetwordlower) !== false) {
+                    $iscorrect = true;
+                    break;
+                }
+            }
+        } else if (!empty($yesno->secret)) {
+            // Fallback for single secret (backward compatibility).
+            $targetwordlower = strtolower($yesno->secret);
+            $iscorrect = (strpos($airesponselower, $targetwordlower) !== false);
+        }
     }
 
     if ($iscorrect) {

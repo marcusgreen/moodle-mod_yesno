@@ -131,5 +131,50 @@ function xmldb_yesno_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026030201, 'yesno');
     }
 
+    if ($oldversion < 2026030202) {
+        // Add sortorder field to yesno_secrets.
+        $table = new xmldb_table('yesno_secrets');
+        $field = new xmldb_field('sortorder', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'clue');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Remove unique constraint on yesnoid and add non-unique index.
+        $table = new xmldb_table('yesno_secrets');
+        $index = new xmldb_index('yesnoid', XMLDB_INDEX_UNIQUE, ['yesnoid']);
+
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        $index = new xmldb_index('yesnoid', XMLDB_INDEX_NOTUNIQUE, ['yesnoid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Yesno savepoint reached.
+        upgrade_mod_savepoint(true, 2026030202, 'yesno');
+    }
+
+    if ($oldversion < 2026030203) {
+        // Add secretid field to yesno_attempts to track which secret was selected for this attempt.
+        $table = new xmldb_table('yesno_attempts');
+        $field = new xmldb_field('secretid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'yesnoid');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add foreign key for secretid.
+        $key = new xmldb_key('fk_secret', XMLDB_KEY_FOREIGN, ['secretid'], 'yesno_secrets', ['id']);
+        if (!$dbman->key_exists($table, $key)) {
+            $dbman->add_key($table, $key);
+        }
+
+        // Yesno savepoint reached.
+        upgrade_mod_savepoint(true, 2026030203, 'yesno');
+    }
+
     return true;
 }

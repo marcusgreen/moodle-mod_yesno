@@ -25,6 +25,25 @@ namespace mod_yesno;
  */
 class lib {
     /**
+     * Select a random secret for a new attempt.
+     *
+     * @param int $yesnoid The yesno activity ID.
+     * @return int|null The ID of the selected secret, or null if no secrets exist.
+     */
+    public static function select_random_secret(int $yesnoid): ?int {
+        global $DB;
+
+        $secrets = $DB->get_records('yesno_secrets', ['yesnoid' => $yesnoid]);
+        if (empty($secrets)) {
+            return null;
+        }
+
+        $secretkeys = array_keys($secrets);
+        $randomkey = $secretkeys[array_rand($secretkeys)];
+        return (int)$randomkey;
+    }
+
+    /**
      * Load attempt state for a user in a yesno activity.
      *
      * @param \stdClass $yesno The yesno activity object.
@@ -71,7 +90,16 @@ class lib {
      * @return string The combined prompt string.
      */
     public static function build_ai_prompt(\stdClass $yesno, string $studentquestion): string {
-        $promptwithsecret = str_replace('{{target_word}}', $yesno->secret, $yesno->system_prompt);
+        // Use the first secret if available, or use multiple secrets formatted.
+        if (!empty($yesno->secrets) && is_array($yesno->secrets)) {
+            $targetword = implode(', ', $yesno->secrets);
+        } else if (!empty($yesno->secret)) {
+            $targetword = $yesno->secret;
+        } else {
+            $targetword = '';
+        }
+
+        $promptwithsecret = str_replace('{{target_word}}', $targetword, $yesno->system_prompt);
         $questionprefix = get_string('studentquestionprefix', 'yesno');
         return $promptwithsecret . "\n\n" . $questionprefix . ": " . $studentquestion;
     }
@@ -125,6 +153,8 @@ class lib {
             $DB->update_record('yesno_attempts', $attemptdata);
             $attemptid = $userattempt->id;
         } else {
+            // For new attempts, select a random secret.
+            $attemptdata->secretid = self::select_random_secret($yesno->id);
             $attemptid = $DB->insert_record('yesno_attempts', $attemptdata);
         }
 

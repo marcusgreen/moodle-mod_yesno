@@ -34,11 +34,39 @@ $id = required_param('id', PARAM_INT);
 [$course, $cm] = get_course_and_cm_from_cmid($id, 'yesno');
 $yesno = $DB->get_record('yesno', ['id' => $cm->instance], '*', MUST_EXIST);
 
-// Load secret and clue from yesno_secrets table.
-$secrets = $DB->get_record('yesno_secrets', ['yesnoid' => $cm->instance]);
-if ($secrets) {
-    $yesno->secret = $secrets->secret;
-    $yesno->clue = $secrets->clue;
+// Load attempt state first to check if user has an existing attempt.
+$attemptstate = lib::load_attempt_state($yesno, $USER->id);
+$userattempt = $attemptstate['userattempt'];
+
+// Load the appropriate secret(s) based on attempt state.
+if ($userattempt && $userattempt->secretid) {
+    // Load only the selected secret for this attempt.
+    $secretrecord = $DB->get_record('yesno_secrets', ['id' => $userattempt->secretid]);
+    if ($secretrecord) {
+        $yesno->secret = $secretrecord->secret;
+        $yesno->secrets = [$secretrecord->secret];
+        $yesno->clues = [$secretrecord->clue];
+    } else {
+        $yesno->secrets = [];
+        $yesno->clues = [];
+    }
+} else {
+    // Load all secrets for teachers or when there's no active attempt.
+    $secretrecords = $DB->get_records('yesno_secrets', ['yesnoid' => $cm->instance], 'sortorder');
+    if (!empty($secretrecords)) {
+        $yesno->secrets = [];
+        $yesno->clues = [];
+        foreach ($secretrecords as $secretrow) {
+            $yesno->secrets[] = $secretrow->secret;
+            $yesno->clues[] = $secretrow->clue;
+        }
+        // Store the first secret for backward compatibility.
+        $firstsecret = reset($secretrecords);
+        $yesno->secret = $firstsecret->secret;
+    } else {
+        $yesno->secrets = [];
+        $yesno->clues = [];
+    }
 }
 
 $modulecontext = context_module::instance($cm->id);
@@ -67,6 +95,18 @@ $canmanage = has_capability('mod/yesno:manage', $modulecontext);
 // Display different content based on capability.
 if ($canmanage) {
     echo $OUTPUT->box(get_string('managemsg', 'yesno'), 'generalbox');
+
+    // Display secret for current attempt (if teacher is making an attempt).
+    if ($userattempt && $userattempt->secretid && !empty($yesno->secrets)) {
+        $secrethtml = html_writer::start_tag('div', ['class' => 'alert alert-info']);
+        $secrethtml .= html_writer::tag('strong', get_string('secrets', 'yesno') . ':');
+        $secrethtml .= html_writer::start_tag('ul');
+        // Only show the selected secret for this attempt.
+        $secrethtml .= html_writer::tag('li', format_text($yesno->secrets[0], FORMAT_PLAIN));
+        $secrethtml .= html_writer::end_tag('ul');
+        $secrethtml .= html_writer::end_tag('div');
+        echo $secrethtml;
+    }
 } else {
     echo $OUTPUT->box(get_string('viewmsg', 'yesno'), 'generalbox');
 }
@@ -83,11 +123,15 @@ $resetuser = optional_param('resetuser', 0, PARAM_INT);
 if ($resetuser && $canmanage && confirm_sesskey()) {
     yesno_reset_attempt($yesno, $USER->id);
     echo $OUTPUT->notification(get_string('sessionreset', 'yesno'), 'success');
+    // Reload attempt state after reset.
+    $attemptstate = lib::load_attempt_state($yesno, $USER->id);
+    $userattempt = $attemptstate['userattempt'];
+    $questioncount = $attemptstate['questioncount'];
+    $score = $attemptstate['score'];
+    $gamefinished = $attemptstate['gamefinished'];
 }
 
-// Load current user's attempt state.
-$attemptstate = lib::load_attempt_state($yesno, $USER->id);
-$userattempt = $attemptstate['userattempt'];
+// Extract attempt state variables (already loaded above).
 $questioncount = $attemptstate['questioncount'];
 $score = $attemptstate['score'];
 $gamefinished = $attemptstate['gamefinished'];

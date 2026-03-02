@@ -55,17 +55,29 @@ class mod_yesno_mod_form extends moodleform_mod {
         // Adding the optional "intro" and "introformat" pair of fields.
         $this->standard_intro_elements();
 
-        // Adding the secret field.
-        $mform->addElement('textarea', 'secret', get_string('secret', 'yesno'), ['rows' => '3', 'cols' => '60']);
-        $mform->setType('secret', PARAM_TEXT);
-        $mform->addRule('secret', null, 'required', null, 'client');
-        $mform->addRule('secret', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('secret', 'secret', 'yesno');
+        // Adding repeating group for secret/clue pairs.
+        $mform->addElement('header', 'secretsheader', get_string('secrets', 'yesno'));
 
-        // Adding the clue field.
-        $mform->addElement('editor', 'clue', get_string('clue', 'yesno'));
-        $mform->setType('clue', PARAM_RAW);
-        $mform->addHelpButton('clue', 'clue', 'yesno');
+        $repeatarray = [];
+        $repeatarray[] = $mform->createElement('text', 'secret', get_string('secret', 'yesno'), ['size' => '60']);
+        $repeatarray[] = $mform->createElement('editor', 'clue', get_string('clue', 'yesno'));
+
+        $repeateloptions = [
+            'secret' => ['type' => PARAM_TEXT],
+            'clue' => ['type' => PARAM_RAW],
+        ];
+
+        $this->repeat_elements($repeatarray, 1, $repeateloptions, 'secret_repeats', 'secret_add_fields', 1, get_string('addsecret', 'yesno'), true);
+
+        // Add rules and help buttons for instances (support up to 10 repeats).
+        for ($i = 0; $i < 10; $i++) {
+            if ($mform->elementExists('secret[' . $i . ']')) {
+                $mform->addRule('secret[' . $i . ']', null, 'required', null, 'client');
+                $mform->addRule('secret[' . $i . ']', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+                $mform->addHelpButton('secret[' . $i . ']', 'secret', 'yesno');
+                $mform->addHelpButton('clue[' . $i . ']', 'clue', 'yesno');
+            }
+        }
 
         // Adding the max characters field.
         $mform->addElement('text', 'max_characters', get_string('maxcharacters', 'yesno'), ['size' => '6']);
@@ -110,22 +122,24 @@ class mod_yesno_mod_form extends moodleform_mod {
     public function data_preprocessing(&$defaultvalues) {
         global $CFG, $DB;
 
-        // Load secret and clue from yesno_secrets table if editing.
+        // Load secrets and clues from yesno_secrets table if editing.
         if (!empty($defaultvalues['instance'])) {
-            $secrets = $DB->get_record('yesno_secrets', ['yesnoid' => $defaultvalues['instance']]);
-            if ($secrets) {
-                $defaultvalues['secret'] = $secrets->secret;
-                $defaultvalues['clue'] = ['text' => $secrets->clue, 'format' => FORMAT_HTML];
+            $allsecrets = $DB->get_records('yesno_secrets', ['yesnoid' => $defaultvalues['instance']], 'sortorder');
+
+            if (!empty($allsecrets)) {
+                $secretindex = 0;
+                foreach ($allsecrets as $secretrow) {
+                    $defaultvalues['secret[' . $secretindex . ']'] = $secretrow->secret;
+                    $defaultvalues['clue[' . $secretindex . ']'] = ['text' => $secretrow->clue, 'format' => FORMAT_HTML];
+                    $secretindex++;
+                }
+                $defaultvalues['secret_repeats'] = count($allsecrets);
             } else {
-                $defaultvalues['clue'] = ['text' => '', 'format' => FORMAT_HTML];
+                $defaultvalues['clue[0]'] = ['text' => '', 'format' => FORMAT_HTML];
             }
         } else {
-            // Preprocess the clue field (editor field) for new instances.
-            if (!empty($defaultvalues['clue'])) {
-                $defaultvalues['clue'] = ['text' => $defaultvalues['clue'], 'format' => FORMAT_HTML];
-            } else {
-                $defaultvalues['clue'] = ['text' => '', 'format' => FORMAT_HTML];
-            }
+            // For new instances, initialize empty clue.
+            $defaultvalues['clue[0]'] = ['text' => '', 'format' => FORMAT_HTML];
         }
     }
 }

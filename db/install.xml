@@ -30,13 +30,14 @@
         <FIELD NAME="yesnoid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link to the yesno instance"/>
         <FIELD NAME="secret" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="The secret word for the game"/>
         <FIELD NAME="clue" TYPE="text" NOTNULL="false" COMMENT="Optional clue for students"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" COMMENT="Sort order for multiple secrets"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="fk_yesno" TYPE="foreign" FIELDS="yesnoid" REFTABLE="yesno" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="yesnoid" UNIQUE="true" FIELDS="yesnoid"/>
+        <INDEX NAME="yesnoid" UNIQUE="false" FIELDS="yesnoid"/>
       </INDEXES>
     </TABLE>
 
@@ -45,6 +46,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
         <FIELD NAME="yesnoid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link to the yesno instance"/>
+        <FIELD NAME="secretid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Link to the selected secret for this attempt"/>
         <FIELD NAME="question_count" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active" COMMENT="active, win, loss"/>
         <FIELD NAME="score" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" COMMENT="Current score for this attempt"/>
@@ -53,6 +55,7 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="fk_yesno" TYPE="foreign" FIELDS="yesnoid" REFTABLE="yesno" REFFIELDS="id"/>
+        <KEY NAME="fk_secret" TYPE="foreign" FIELDS="secretid" REFTABLE="yesno_secrets" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="user_instance" UNIQUE="false" FIELDS="userid, yesnoid"/>
