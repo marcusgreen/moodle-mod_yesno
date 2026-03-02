@@ -91,5 +91,45 @@ function xmldb_yesno_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026030100, 'yesno');
     }
 
+    if ($oldversion < 2026030201) {
+        // Create yesno_secrets table.
+        $table = new xmldb_table('yesno_secrets');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table->add_field('yesnoid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('secret', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL);
+        $table->add_field('clue', XMLDB_TYPE_TEXT, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_yesno', XMLDB_KEY_FOREIGN, ['yesnoid'], 'yesno', ['id']);
+        $table->add_index('yesnoid', XMLDB_INDEX_UNIQUE, ['yesnoid']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Migrate existing data from yesno table to yesno_secrets.
+        $instances = $DB->get_records('yesno', null, '', 'id, secret, clue');
+        foreach ($instances as $instance) {
+            $secret = new stdClass();
+            $secret->yesnoid = $instance->id;
+            $secret->secret = $instance->secret;
+            $secret->clue = $instance->clue;
+            $DB->insert_record('yesno_secrets', $secret);
+        }
+
+        // Drop secret and clue columns from yesno table.
+        $table = new xmldb_table('yesno');
+        $field = new xmldb_field('secret');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        $field = new xmldb_field('clue');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Yesno savepoint reached.
+        upgrade_mod_savepoint(true, 2026030201, 'yesno');
+    }
+
     return true;
 }

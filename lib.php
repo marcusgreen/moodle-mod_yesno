@@ -37,15 +37,38 @@ function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool 
     $data->id = $data->instance;
 
     // Handle editor fields - they come as arrays with 'text' and 'format'.
-    if (isset($data->clue) && is_array($data->clue)) {
-        $data->clue = $data->clue['text'];
-    }
     if (isset($data->system_prompt) && is_array($data->system_prompt)) {
         $data->system_prompt = $data->system_prompt['text'];
     }
 
-    // Updating the record.
+    // Extract secret and clue before updating main record.
+    $secret = $data->secret ?? '';
+    if (isset($data->clue) && is_array($data->clue)) {
+        $clue = $data->clue['text'];
+    } else {
+        $clue = $data->clue ?? null;
+    }
+
+    // Unset these from the main record before update.
+    unset($data->secret);
+    unset($data->clue);
+
+    // Update main yesno record.
     $result = $DB->update_record('yesno', $data);
+
+    // Update or insert secret and clue in yesno_secrets table.
+    $secretrecord = $DB->get_record('yesno_secrets', ['yesnoid' => $data->id]);
+    if ($secretrecord) {
+        $secretrecord->secret = $secret;
+        $secretrecord->clue = $clue;
+        $DB->update_record('yesno_secrets', $secretrecord);
+    } else {
+        $secretrecord = new stdClass();
+        $secretrecord->yesnoid = $data->id;
+        $secretrecord->secret = $secret;
+        $secretrecord->clue = $clue;
+        $DB->insert_record('yesno_secrets', $secretrecord);
+    }
 
     return $result;
 }
@@ -69,6 +92,9 @@ function yesno_delete_instance(int $id): bool {
 
     // Delete attempts for this instance.
     $DB->delete_records('yesno_attempts', ['yesnoid' => $id]);
+
+    // Delete secrets for this instance.
+    $DB->delete_records('yesno_secrets', ['yesnoid' => $id]);
 
     // Delete the activity instance.
     $DB->delete_records('yesno', ['id' => $id]);
@@ -250,8 +276,6 @@ function yesno_render_question_form(stdClass $yesno, context_module $moduleconte
         'sesskey' => sesskey(),
         'your_question_label' => get_string('yourquestion', 'yesno'),
         'help_button' => $OUTPUT->help_icon('yourquestion', 'yesno'),
-        'max_questions_label' => get_string('maxquestions', 'yesno'),
-        'max_questions_help' => $OUTPUT->help_icon('maxquestions', 'yesno'),
         'max_characters' => $yesno->max_characters,
         'enter_question_placeholder' => get_string('enteryourquestion', 'yesno'),
         'submit_button_text' => get_string('submitquestion', 'yesno'),
@@ -276,9 +300,6 @@ function yesno_add_instance(stdClass $yesno): int {
     $yesno->timecreated = time();
 
     // Handle editor fields - they come as arrays with 'text' and 'format'.
-    if (isset($yesno->clue) && is_array($yesno->clue)) {
-        $yesno->clue = $yesno->clue['text'];
-    }
     if (isset($yesno->system_prompt) && is_array($yesno->system_prompt)) {
         $yesno->system_prompt = $yesno->system_prompt['text'];
     }
@@ -288,7 +309,29 @@ function yesno_add_instance(stdClass $yesno): int {
         $yesno->system_prompt = get_config('mod_yesno', 'defaultprompt');
     }
 
-    return $DB->insert_record('yesno', $yesno);
+    // Extract secret and clue before inserting main record.
+    $secret = $yesno->secret ?? '';
+    if (isset($yesno->clue) && is_array($yesno->clue)) {
+        $clue = $yesno->clue['text'];
+    } else {
+        $clue = $yesno->clue ?? null;
+    }
+
+    // Unset these from the main record before insert.
+    unset($yesno->secret);
+    unset($yesno->clue);
+
+    // Insert main yesno record.
+    $yesnoid = $DB->insert_record('yesno', $yesno);
+
+    // Insert secret and clue into yesno_secrets table.
+    $secretrecord = new stdClass();
+    $secretrecord->yesnoid = $yesnoid;
+    $secretrecord->secret = $secret;
+    $secretrecord->clue = $clue;
+    $DB->insert_record('yesno_secrets', $secretrecord);
+
+    return $yesnoid;
 }
 
 /**

@@ -34,6 +34,13 @@ $id = required_param('id', PARAM_INT);
 [$course, $cm] = get_course_and_cm_from_cmid($id, 'yesno');
 $yesno = $DB->get_record('yesno', ['id' => $cm->instance], '*', MUST_EXIST);
 
+// Load secret and clue from yesno_secrets table.
+$secrets = $DB->get_record('yesno_secrets', ['yesnoid' => $cm->instance]);
+if ($secrets) {
+    $yesno->secret = $secrets->secret;
+    $yesno->clue = $secrets->clue;
+}
+
 $modulecontext = context_module::instance($cm->id);
 require_login($course, true, $cm);
 $PAGE->set_url('/mod/yesno/view.php', ['id' => $cm->id]);

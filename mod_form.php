@@ -62,6 +62,11 @@ class mod_yesno_mod_form extends moodleform_mod {
         $mform->addRule('secret', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('secret', 'secret', 'yesno');
 
+        // Adding the clue field.
+        $mform->addElement('editor', 'clue', get_string('clue', 'yesno'));
+        $mform->setType('clue', PARAM_RAW);
+        $mform->addHelpButton('clue', 'clue', 'yesno');
+
         // Adding the max characters field.
         $mform->addElement('text', 'max_characters', get_string('maxcharacters', 'yesno'), ['size' => '6']);
         $mform->setType('max_characters', PARAM_INT);
@@ -90,11 +95,6 @@ class mod_yesno_mod_form extends moodleform_mod {
         $mform->addRule('max_questions', get_string('maximumchars', '', 1000), 'maxlength', 4, 'client');
         $mform->addHelpButton('max_questions', 'maxquestions', 'yesno');
 
-        // Adding the clue field.
-        $mform->addElement('editor', 'clue', get_string('clue', 'yesno'));
-        $mform->setType('clue', PARAM_RAW);
-        $mform->addHelpButton('clue', 'clue', 'yesno');
-
         // Adding standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
@@ -108,13 +108,24 @@ class mod_yesno_mod_form extends moodleform_mod {
      * @param array $defaultvalues
      */
     public function data_preprocessing(&$defaultvalues) {
-        global $CFG;
+        global $CFG, $DB;
 
-        // Preprocess the clue field (editor field).
-        if (!empty($defaultvalues['clue'])) {
-            $defaultvalues['clue'] = ['text' => $defaultvalues['clue'], 'format' => FORMAT_HTML];
+        // Load secret and clue from yesno_secrets table if editing.
+        if (!empty($defaultvalues['instance'])) {
+            $secrets = $DB->get_record('yesno_secrets', ['yesnoid' => $defaultvalues['instance']]);
+            if ($secrets) {
+                $defaultvalues['secret'] = $secrets->secret;
+                $defaultvalues['clue'] = ['text' => $secrets->clue, 'format' => FORMAT_HTML];
+            } else {
+                $defaultvalues['clue'] = ['text' => '', 'format' => FORMAT_HTML];
+            }
         } else {
-            $defaultvalues['clue'] = ['text' => '', 'format' => FORMAT_HTML];
+            // Preprocess the clue field (editor field) for new instances.
+            if (!empty($defaultvalues['clue'])) {
+                $defaultvalues['clue'] = ['text' => $defaultvalues['clue'], 'format' => FORMAT_HTML];
+            } else {
+                $defaultvalues['clue'] = ['text' => '', 'format' => FORMAT_HTML];
+            }
         }
     }
 }
