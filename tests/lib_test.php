@@ -127,7 +127,6 @@ final class lib_test extends advanced_testcase {
         // Initial state: no attempt, no questions asked.
 
         $studentquestion = "Is it a dog or a cat";
-        xdebug_break();
 
         $result = lib::handle_submission(
             $yesno,
@@ -144,7 +143,6 @@ final class lib_test extends advanced_testcase {
         $userattempt = $attemptstate['userattempt'];
         // Initial state: no attempt, no questions asked.
         $studentquestion = "Is it an elephant";
-        xdebug_break();
 
         $result = lib::handle_submission(
             $yesno,

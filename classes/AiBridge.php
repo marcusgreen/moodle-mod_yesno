@@ -62,7 +62,6 @@ class AiBridge {
             return $llmresponse->get_content();
         } else if ($backend == 'core_ai_subsystem') {
             global $USER;
-            xdebug_break();
             $action = new \core_ai\aiactions\generate_text(
                 contextid: $this->contextid,
                 userid: $USER->id,
@@ -78,9 +77,9 @@ class AiBridge {
                 !is_array($responsedata) || !array_key_exists('generatedcontent', $responsedata)
             ) {
                 if (is_null($responsedata) || is_null($responsedata['generatedcontent'])) {
-                    throw new moodle_exception('err_retrievingfeedback_checkconfig', 'qtype_aitext');
+                    throw new \moodle_exception('err_retrievingfeedback_checkconfig', 'qtype_aitext');
                 } else {
-                    throw new moodle_exception('err_retrievingfeedback', 'qtype_aitext');
+                    throw new \moodle_exception('err_retrievingfeedback', 'qtype_aitext');
                 }
             }
             return $responsedata['generatedcontent'];
@@ -90,9 +89,9 @@ class AiBridge {
                 $llmresponse = $ai->prompt_completion($prompt);
                 return $llmresponse['response']['choices'][0]['message']['content'];
             } else {
-                throw new moodle_exception('err_retrievingfeedback_checkconfig', 'qtype_aitext', '');
+                throw new \moodle_exception('err_retrievingfeedback_checkconfig', 'qtype_aitext', '');
             }
         }
-        throw new moodle_exception('err_invalidbackend', 'qtype_aitext');
+        throw new \moodle_exception('err_invalidbackend', 'qtype_aitext');
     }
 }
