@@ -128,8 +128,14 @@ function yesno_delete_instance(int $id): bool {
  * @return string HTML output of attempt information
  * @package mod_yesno
  */
-function yesno_render_attempt_info(stdClass $yesno, int $questioncount, int $score, context_module $modulecontext, ?stdClass $userattempt = null): string {
-    global $OUTPUT;
+function yesno_render_attempt_info(
+    stdClass $yesno,
+    int $questioncount,
+    int $score,
+    context_module $modulecontext,
+    ?stdClass $userattempt = null
+): string {
+    global $OUTPUT, $DB;
 
     // Ensure score is a valid integer.
     $score = is_numeric($score) ? (int)$score : 0;
@@ -145,9 +151,22 @@ function yesno_render_attempt_info(stdClass $yesno, int $questioncount, int $sco
         $gamestatus = $userattempt->status;
     }
 
+    // Build game over message for loss.
+    $gameoversecret = '';
+    if ($gamefinished && $gamestatus === 'loss' && $userattempt && $userattempt->secretid) {
+        $secret = $DB->get_field('yesno_secrets', 'secret', ['id' => $userattempt->secretid]);
+        if ($secret) {
+            $gameoversecret = "\nYes the secret was: " . $secret;
+        }
+    }
+
     $data = [
         'has_attempt_info' => true,
-        'attempt_info_text' => get_string('attemptsinfo', 'yesno', ['count' => $questioncount, 'max' => $yesno->max_questions]),
+        'attempt_info_text' => get_string(
+            'attemptsinfo',
+            'yesno',
+            ['count' => $questioncount, 'max' => $yesno->max_questions]
+        ),
         'score' => $score,
         'max_score' => $yesno->max_grade,
         'show_score' => ($score > 0 && $gamefinished),
@@ -158,8 +177,12 @@ function yesno_render_attempt_info(stdClass $yesno, int $questioncount, int $sco
         'is_loss' => ($gamestatus === 'loss'),
         'game_over_message' => $gamefinished ?
             ($gamestatus === 'win' ?
-                get_string('gamewon', 'yesno', ['score' => $finalscore, 'max' => $yesno->max_grade]) :
-                get_string('gamelost', 'yesno')
+                get_string(
+                    'gamewon',
+                    'yesno',
+                    ['score' => $finalscore, 'max' => $yesno->max_grade]
+                ) :
+                ($gameoversecret ?: get_string('gamelost', 'yesno'))
             ) : '',
     ];
 

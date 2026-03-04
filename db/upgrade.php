@@ -176,5 +176,18 @@ function xmldb_yesno_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026030203, 'yesno');
     }
 
+    if ($oldversion < 2026030204) {
+        // Add show_answer_on_loss field to yesno table.
+        $table = new xmldb_table('yesno');
+        $field = new xmldb_field('show_answer_on_loss', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'max_questions');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Yesno savepoint reached.
+        upgrade_mod_savepoint(true, 2026030204, 'yesno');
+    }
+
     return true;
 }

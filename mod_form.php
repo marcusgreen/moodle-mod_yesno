@@ -107,6 +107,12 @@ class mod_yesno_mod_form extends moodleform_mod {
         $mform->addRule('max_questions', get_string('maximumchars', '', 1000), 'maxlength', 4, 'client');
         $mform->addHelpButton('max_questions', 'maxquestions', 'yesno');
 
+        // Adding checkbox to show answer on loss.
+        $mform->addElement('checkbox', 'show_answer_on_loss', get_string('showanswer', 'yesno'));
+        $mform->setType('show_answer_on_loss', PARAM_INT);
+        $mform->setDefault('show_answer_on_loss', 1);
+        $mform->addHelpButton('show_answer_on_loss', 'showanswer', 'yesno');
+
         // Adding standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
