@@ -34,6 +34,15 @@ $id = required_param('id', PARAM_INT);
 [$course, $cm] = get_course_and_cm_from_cmid($id, 'yesno');
 $yesno = $DB->get_record('yesno', ['id' => $cm->instance], '*', MUST_EXIST);
 
+// Handle start attempt request (BEFORE loading attempt state).
+$startattempt = optional_param('startattempt', 0, PARAM_INT);
+if ($startattempt && confirm_sesskey()) {
+    $modulecontext = context_module::instance($cm->id);
+    require_login($course, true, $cm);
+    require_capability('mod/yesno:view', $modulecontext);
+    yesno_start_attempt($yesno, $USER->id);
+}
+
 // Load attempt state first to check if user has an existing attempt.
 $attemptstate = lib::load_attempt_state($yesno, $USER->id);
 $userattempt = $attemptstate['userattempt'];
@@ -118,6 +127,11 @@ echo html_writer::tag(
     ['class' => 'yesno-description']
 );
 
+// Show start attempt button if user has no attempt yet.
+if (!$userattempt) {
+    echo yesno_render_start_attempt_button($modulecontext);
+}
+
 // Handle reset request (teachers only) - do this BEFORE loading attempt state.
 $resetuser = optional_param('resetuser', 0, PARAM_INT);
 if ($resetuser && $canmanage && confirm_sesskey()) {
@@ -167,12 +181,15 @@ if ($canmanage && $userattempt) {
 }
 
 // Student question input form using mustache template.
-if (!$gamefinished) {
-    echo yesno_render_question_form($yesno, $modulecontext);
-} else {
-    echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
-    echo html_writer::tag('p', get_string('gamefinishedmsg', 'yesno'));
-    echo html_writer::end_tag('div');
+// Only show if user has started an attempt.
+if ($userattempt) {
+    if (!$gamefinished) {
+        echo yesno_render_question_form($yesno, $modulecontext);
+    } else {
+        echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
+        echo html_writer::tag('p', get_string('gamefinishedmsg', 'yesno'));
+        echo html_writer::end_tag('div');
+    }
 }
 
 // Add JavaScript for character counter using AMD module.

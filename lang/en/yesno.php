@@ -63,10 +63,16 @@ $string['resetconfirm'] = 'Are you sure you want to reset this student\'s sessio
 $string['resetsession'] = 'Reset Session';
 $string['score'] = 'Score';
 $string['addsecret'] = 'Add another secret';
+$string['attemptstarted'] = 'Your attempt has started!';
 $string['secret'] = 'Secret';
 $string['secret_help'] = 'The secret that students need to guess in the Twenty Questions game.';
 $string['secrets'] = 'Secrets and Clues';
 $string['sessionreset'] = 'Session has been reset successfully.';
+$string['showanswer'] = 'Show correct answer when student does not guess it';
+$string['showanswer_help'] = 'If enabled, the correct answer will be displayed to the student at the ' .
+    'end of the game if they fail to guess it within the maximum number of questions. If disabled, ' .
+    'students will not see the answer.';
+$string['startattempt'] = 'Start your attempt';
 $string['studentquestionprefix'] = 'Student question';
 $string['submitquestion'] = 'Submit question';
 $string['systemprompt'] = 'System prompt';
@@ -75,6 +81,8 @@ $string['viewmsg'] = 'You can view this activity.';
 $string['yesnoname'] = 'Activity name';
 $string['yesnoname_help'] = 'The name of this Twenty Questions activity';
 $string['yourquestion'] = 'Your question';
-$string['yourquestion_help'] = 'Ask a yes/no question to help you guess the secret word. Your question must be answerable with "Yes", "No", or "No answer possible". You must ask only one question at a time, and questions are limited by the character count shown above. The AI will evaluate each question and provide a response to help you narrow down the possibilities. Ask strategic questions that help eliminate possibilities and be as specific as possible.';
-$string['showanswer'] = 'Show correct answer when student does not guess it';
-$string['showanswer_help'] = 'If enabled, the correct answer will be displayed to the student at the end of the game if they fail to guess it within the maximum number of questions. If disabled, students will not see the answer.';
+$string['yourquestion_help'] = 'Ask a yes/no question to help you guess the secret word. Your question ' .
+    'must be answerable with "Yes", "No", or "No answer possible". You must ask only one question ' .
+    'at a time, and questions are limited by the character count shown above. The AI will evaluate ' .
+    'each question and provide a response to help you narrow down the possibilities. Ask strategic ' .
+    'questions that help eliminate possibilities and be as specific as possible.';

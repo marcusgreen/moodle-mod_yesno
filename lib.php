@@ -401,7 +401,13 @@ function yesno_add_instance(stdClass $yesno): int {
  * @param bool $iscorrect Whether the student's guess was correct.
  * @return array An array containing the calculated score and the game status.
  */
-function yesno_process_attempt(stdClass $yesno, string $studentquestion, string $airesponse, int $currentquestion, bool $iscorrect = false): array {
+function yesno_process_attempt(
+    stdClass $yesno,
+    string $studentquestion,
+    string $airesponse,
+    int $currentquestion,
+    bool $iscorrect = false
+): array {
     // Check if the AI response indicates any target word was found.
     if (!$iscorrect) {
         $airesponselower = strtolower($airesponse);
@@ -493,4 +499,63 @@ function yesno_reset_attempt(stdClass $yesno, int $userid): bool {
     grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, null, ['userid' => $userid]);
 
     return true;
+}
+
+/**
+ * Create a new attempt for a user by selecting a random secret
+ *
+ * @param object $yesno The yesno activity object.
+ * @param int $userid The user's ID.
+ * @return object The created attempt record.
+ * @package mod_yesno
+ */
+function yesno_start_attempt(stdClass $yesno, int $userid): stdClass {
+    global $DB;
+
+    // Get all secrets for this activity.
+    $secrets = $DB->get_records('yesno_secrets', ['yesnoid' => $yesno->id], 'sortorder');
+
+    if (empty($secrets)) {
+        throw new Exception('No secrets found for this activity');
+    }
+
+    // Select a random secret.
+    $selectedsecret = $secrets[array_rand($secrets)];
+
+    // Create attempt record with the selected secret.
+    $attempt = new stdClass();
+    $attempt->yesnoid = $yesno->id;
+    $attempt->userid = $userid;
+    $attempt->secretid = $selectedsecret->id;
+    $attempt->numberofquestions = 0;
+    $attempt->status = 'active';
+    $attempt->score = 0;
+    $attempt->timecreated = time();
+    $attempt->timemodified = time();
+
+    $attempt->id = $DB->insert_record('yesno_attempts', $attempt);
+    return $attempt;
+}
+
+/**
+ * Render the start attempt button using mustache template
+ *
+ * @param context_module $modulecontext
+ * @return string HTML output of the start button
+ * @package mod_yesno
+ */
+function yesno_render_start_attempt_button(context_module $modulecontext): string {
+    global $OUTPUT;
+
+    $starturl = new moodle_url(
+        $modulecontext->get_url(),
+        ['startattempt' => 1, 'sesskey' => sesskey()]
+    );
+
+    $data = [
+        'start_button_text' => get_string('startattempt', 'yesno'),
+        'start_button_url' => $starturl->out(false),
+    ];
+
+    return $OUTPUT->render_from_template('mod_yesno/start_attempt_button', $data);
 }
