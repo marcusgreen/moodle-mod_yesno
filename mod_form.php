@@ -34,7 +34,7 @@ class mod_yesno_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $DB;
 
         $mform = $this->_form;
 
@@ -58,6 +58,11 @@ class mod_yesno_mod_form extends moodleform_mod {
         // Adding repeating group for secret/clue pairs.
         $mform->addElement('header', 'secretsheader', get_string('secrets', 'yesno'));
 
+        $repeatcount = 1;
+        if ($instance = $this->_instance) {
+            $repeatcount = max(1, $DB->count_records('yesno_secrets', ['yesnoid' => $instance]));
+        }
+
         $repeatarray = [];
         $repeatarray[] = $mform->createElement('text', 'secret', get_string('secret', 'yesno'), ['size' => '60']);
         $repeatarray[] = $mform->createElement('editor', 'clue', get_string('clue', 'yesno'));
@@ -67,7 +72,7 @@ class mod_yesno_mod_form extends moodleform_mod {
             'clue' => ['type' => PARAM_RAW],
         ];
 
-        $this->repeat_elements($repeatarray, 1, $repeateloptions, 'secret_repeats', 'secret_add_fields', 1, get_string('addsecret', 'yesno'), true);
+        $this->repeat_elements($repeatarray, $repeatcount, $repeateloptions, 'secret_repeats', 'secret_add_fields', 1, get_string('addsecret', 'yesno'), true);
 
         // Add rules and help buttons for instances (support up to 10 repeats).
         for ($i = 0; $i < 10; $i++) {
@@ -120,32 +125,34 @@ class mod_yesno_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    /**
-     * Set default values for the form
-     *
-     * @param array $defaultvalues
-     */
     public function data_preprocessing(&$defaultvalues) {
-        global $CFG, $DB;
+        global $DB;
 
-        // Load secrets and clues from yesno_secrets table if editing.
-        if (!empty($defaultvalues['instance'])) {
-            $allsecrets = $DB->get_records('yesno_secrets', ['yesnoid' => $defaultvalues['instance']], 'sortorder');
+        parent::data_preprocessing($defaultvalues);
 
-            if (!empty($allsecrets)) {
-                $secretindex = 0;
-                foreach ($allsecrets as $secretrow) {
-                    $defaultvalues['secret[' . $secretindex . ']'] = $secretrow->secret;
-                    $defaultvalues['clue[' . $secretindex . ']'] = ['text' => $secretrow->clue, 'format' => FORMAT_HTML];
-                    $secretindex++;
-                }
-                $defaultvalues['secret_repeats'] = count($allsecrets);
-            } else {
-                $defaultvalues['clue[0]'] = ['text' => '', 'format' => FORMAT_HTML];
-            }
-        } else {
-            // For new instances, initialize empty clue.
-            $defaultvalues['clue[0]'] = ['text' => '', 'format' => FORMAT_HTML];
+        if (empty($defaultvalues['instance'])) {
+            $defaultvalues['clue'][0] = ['text' => '', 'format' => FORMAT_HTML];
+            return;
         }
+
+        $allsecrets = $DB->get_records('yesno_secrets', ['yesnoid' => $defaultvalues['instance']], 'sortorder');
+
+        if (empty($allsecrets)) {
+            $defaultvalues['clue'][0] = ['text' => '', 'format' => FORMAT_HTML];
+            return;
+        }
+
+        $defaultvalues['secret'] = [];
+        $defaultvalues['clue'] = [];
+
+        foreach ($allsecrets as $secretrow) {
+            $defaultvalues['secret'][] = $secretrow->secret;
+            $defaultvalues['clue'][] = [
+                'text' => $secretrow->clue,
+                'format' => FORMAT_HTML,
+            ];
+        }
+
+        $defaultvalues['secret_repeats'] = count($allsecrets);
     }
 }
