@@ -131,3 +131,123 @@
 .yesno-start-btn i {
     margin-right: 8px;
 }
+
+/* Progress bar styles */
+.yesno-progress-container {
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.yesno-progress-container .progress {
+    background-color: #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.yesno-progress-container .progress-bar {
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+    font-weight: 600;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: width 0.3s ease;
+}
+
+/* Character counter wrapper styles */
+.char-counter-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding-right: 4px;
+}
+
+.char-counter {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.char-counter.warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.char-counter.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Enhanced response card styles */
+.history-item {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fafbfc;
+    transition: box-shadow 0.2s ease;
+}
+
+.history-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.history-question-block {
+    margin-bottom: 12px;
+    padding: 12px;
+    background-color: #e7f3ff;
+    border-left: 4px solid #0066cc;
+    border-radius: 4px;
+}
+
+.history-question-label {
+    font-weight: 600;
+    color: #003366;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.history-question-text {
+    color: #003366;
+    line-height: 1.6;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.history-response-block {
+    margin-bottom: 12px;
+    padding: 12px;
+    background-color: #f0f8f0;
+    border-left: 4px solid #28a745;
+    border-radius: 4px;
+}
+
+.history-response-label {
+    font-weight: 600;
+    color: #155724;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.history-response-text {
+    color: #155724;
+    line-height: 1.6;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.history-timestamp {
+    border-top: 1px solid #dee2e6;
+    padding-top: 8px;
+    color: #6c757d;
+    font-style: italic;
+}

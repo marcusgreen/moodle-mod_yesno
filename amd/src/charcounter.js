@@ -40,16 +40,17 @@ define([], function() {
             const remaining = this.maxLength - this.textarea.value.length;
             this.counter.textContent = `Characters remaining: ${remaining}/${this.maxLength}`;
 
-            // Change color when approaching limit.
-            if (remaining < this.maxLength * 0.2) {
-                this.counter.style.color = 'orange';
-            } else {
-                this.counter.style.color = '';
+            // Remove all classes first.
+            this.counter.classList.remove('warning', 'danger');
+
+            // Add warning class when approaching limit (< 20%).
+            if (remaining < this.maxLength * 0.2 && remaining > 0) {
+                this.counter.classList.add('warning');
             }
 
-            // Turn red when at or over limit.
+            // Add danger class when at or over limit.
             if (remaining <= 0) {
-                this.counter.style.color = 'red';
+                this.counter.classList.add('danger');
             }
         }
     }

@@ -24,9 +24,15 @@
     <h4>{{conversation_history_title}}</h4>
     {{#history_items}}
     <div class="history-item">
-        <p><strong>{{your_question_label}}:</strong> {{{question}}}</p>
-        <p><strong>{{ai_response_label}}:</strong> {{{response}}}</p>
-        <p><small>{{timestamp}}</small></p>
+        <div class="history-question-block">
+            <div class="history-question-label">{{your_question_label}}</div>
+            <div class="history-question-text">{{{question}}}</div>
+        </div>
+        <div class="history-response-block">
+            <div class="history-response-label">{{ai_response_label}}</div>
+            <div class="history-response-text">{{{response}}}</div>
+        </div>
+        <div class="history-timestamp"><small>{{timestamp}}</small></div>
     </div>
     {{/history_items}}
 </div>

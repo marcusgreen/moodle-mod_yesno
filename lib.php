@@ -160,6 +160,9 @@ function yesno_render_attempt_info(
         }
     }
 
+    // Calculate progress percentage.
+    $progresspercentage = ($yesno->max_questions > 0) ? (int)(($questioncount / $yesno->max_questions) * 100) : 0;
+
     $data = [
         'has_attempt_info' => true,
         'attempt_info_text' => get_string(
@@ -167,6 +170,9 @@ function yesno_render_attempt_info(
             'yesno',
             ['count' => $questioncount, 'max' => $yesno->max_questions]
         ),
+        'progress_percentage' => $progresspercentage,
+        'question_count' => $questioncount,
+        'max_questions' => $yesno->max_questions,
         'score' => $score,
         'max_score' => $yesno->max_grade,
         'show_score' => ($score > 0 && $gamefinished),
