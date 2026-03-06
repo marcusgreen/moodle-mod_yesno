@@ -23,9 +23,12 @@
  */
 
 $string['activitydescription'] = 'This is a Twenty Questions activity where students can engage in the classic guessing game.';
+$string['addsecret'] = 'Add another secret';
+$string['adminonly'] = 'Teacher/Admin Notice';
 $string['airesponse'] = 'AI Response';
 $string['askquestion'] = 'Ask a question';
 $string['attemptsinfo'] = 'You have asked {$a->count} out of {$a->max} questions.';
+$string['attemptstarted'] = 'Your attempt has started!';
 $string['charlimitinfo'] = 'You can ask questions with up to {$a} characters.';
 $string['charsremaining'] = 'Characters remaining: {$a->remaining}/{$a->max}';
 $string['clue'] = 'Clue for students';
@@ -62,8 +65,6 @@ $string['reset'] = 'Reset Session';
 $string['resetconfirm'] = 'Are you sure you want to reset this student\'s session? This will delete all their attempts and history.';
 $string['resetsession'] = 'Reset Session';
 $string['score'] = 'Score';
-$string['addsecret'] = 'Add another secret';
-$string['attemptstarted'] = 'Your attempt has started!';
 $string['secret'] = 'Secret';
 $string['secret_help'] = 'The secret that students need to guess in the Twenty Questions game.';
 $string['secrets'] = 'Secrets and Clues';
@@ -73,6 +74,7 @@ $string['showanswer_help'] = 'If enabled, the correct answer will be displayed t
     'end of the game if they fail to guess it within the maximum number of questions. If disabled, ' .
     'students will not see the answer.';
 $string['startattempt'] = 'Start your attempt';
+$string['startinstructions'] = 'Click the button below to begin your Twenty Questions game. Choose your strategy wisely and ask strategic questions to narrow down the possibilities.';
 $string['studentquestionprefix'] = 'Student question';
 $string['submitquestion'] = 'Submit question';
 $string['systemprompt'] = 'System prompt';

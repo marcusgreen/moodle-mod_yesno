@@ -58,3 +58,76 @@
     color: #6c757d;
     font-style: italic;
 }
+
+/* Welcome section styles */
+.yesno-welcome-section {
+    margin-bottom: 30px;
+}
+
+.yesno-admin-notice {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+    margin-bottom: 20px;
+}
+
+.yesno-admin-notice h5 {
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.yesno-admin-notice i {
+    margin-right: 8px;
+}
+
+.yesno-intro-box {
+    padding: 20px 0;
+}
+
+.yesno-activity-description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.yesno-instructions {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.yesno-instructions p {
+    margin: 0;
+}
+
+/* Start attempt button styling */
+.yesno-start-attempt-container {
+    text-align: center;
+    padding: 20px 0;
+    margin: 30px 0;
+    background-color: #f0f8ff;
+    border-radius: 6px;
+    border: 2px solid #e3f2fd;
+}
+
+.yesno-start-btn {
+    padding: 12px 40px;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.25);
+    transition: all 0.3s ease;
+}
+
+.yesno-start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.35);
+}
+
+.yesno-start-btn i {
+    margin-right: 8px;
+}

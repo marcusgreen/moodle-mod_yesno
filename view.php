@@ -101,35 +101,37 @@ if (!empty($yesno->intro)) {
 // Check if user can manage the activity.
 $canmanage = has_capability('mod/yesno:manage', $modulecontext);
 
-// Display different content based on capability.
-if ($canmanage) {
-    echo $OUTPUT->box(get_string('managemsg', 'yesno'), 'generalbox');
-
-    // Display secret for current attempt (if teacher is making an attempt).
-    if ($userattempt && $userattempt->secretid && !empty($yesno->secrets)) {
-        $secrethtml = html_writer::start_tag('div', ['class' => 'alert alert-info']);
-        $secrethtml .= html_writer::tag('strong', get_string('secrets', 'yesno') . ':');
-        $secrethtml .= html_writer::start_tag('ul');
-        // Only show the selected secret for this attempt.
-        $secrethtml .= html_writer::tag('li', format_text($yesno->secrets[0], FORMAT_PLAIN));
-        $secrethtml .= html_writer::end_tag('ul');
-        $secrethtml .= html_writer::end_tag('div');
-        echo $secrethtml;
-    }
-} else {
-    echo $OUTPUT->box(get_string('viewmsg', 'yesno'), 'generalbox');
-}
-
-// Add some basic styling.
-echo html_writer::tag(
-    'div',
-    get_string('activitydescription', 'yesno'),
-    ['class' => 'yesno-description']
-);
-
 // Show start attempt button if user has no attempt yet.
 if (!$userattempt) {
+    // Render welcome section with admin notice (if applicable) before the button.
+    $welcomedata = [
+        'show_welcome' => true,
+        'description' => get_string('activitydescription', 'yesno'),
+        'instructions' => get_string('startinstructions', 'yesno'),
+        'show_admin_notice' => $canmanage,
+        'admin_notice_text' => get_string('managemsg', 'yesno'),
+    ];
+    echo $OUTPUT->render_from_template('mod_yesno/welcome_section', $welcomedata);
+
+    // Show start attempt button.
     echo yesno_render_start_attempt_button($modulecontext);
+} else {
+    // If user has started an attempt, show admin-only notices.
+    if ($canmanage) {
+        echo $OUTPUT->box(get_string('managemsg', 'yesno'), 'generalbox');
+
+        // Display secret for current attempt (if teacher is making an attempt).
+        if ($userattempt && $userattempt->secretid && !empty($yesno->secrets)) {
+            $secrethtml = html_writer::start_tag('div', ['class' => 'alert alert-info']);
+            $secrethtml .= html_writer::tag('strong', get_string('secrets', 'yesno') . ':');
+            $secrethtml .= html_writer::start_tag('ul');
+            // Only show the selected secret for this attempt.
+            $secrethtml .= html_writer::tag('li', format_text($yesno->secrets[0], FORMAT_PLAIN));
+            $secrethtml .= html_writer::end_tag('ul');
+            $secrethtml .= html_writer::end_tag('div');
+            echo $secrethtml;
+        }
+    }
 }
 
 // Handle reset request (teachers only) - do this BEFORE loading attempt state.
@@ -170,7 +172,10 @@ if (!empty($studentquestion) && confirm_sesskey()) {
 }
 
 // Display attempt information using mustache template (after handling submission).
-echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
+// Only show if user has started an attempt.
+if ($userattempt) {
+    echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
+}
 
 // Display most recent submission and response above the textarea.
 echo yesno_render_last_response($userattempt, $modulecontext);
