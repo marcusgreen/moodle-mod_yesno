@@ -196,14 +196,43 @@ function yesno_render_attempt_info(
 }
 
 /**
+ * Check if a response contains the secret word
+ *
+ * @param string $response The AI response text
+ * @param object $yesno The yesno activity object
+ * @return bool True if the response contains the secret
+ * @package mod_yesno
+ */
+function yesno_response_is_correct(string $response, stdClass $yesno): bool {
+    $responselower = strtolower($response);
+
+    // Check if any secret word appears in the response.
+    if (!empty($yesno->secrets) && is_array($yesno->secrets)) {
+        foreach ($yesno->secrets as $secret) {
+            $targetwordlower = strtolower($secret);
+            if (strpos($responselower, $targetwordlower) !== false) {
+                return true;
+            }
+        }
+    } else if (!empty($yesno->secret)) {
+        // Fallback for single secret (backward compatibility).
+        $targetwordlower = strtolower($yesno->secret);
+        return (strpos($responselower, $targetwordlower) !== false);
+    }
+
+    return false;
+}
+
+/**
  * Render the last (most recent) response only
  *
  * @param object $userattempt
  * @param context_module $modulecontext
+ * @param stdClass $yesno
  * @return string HTML output of the last response
  * @package mod_yesno
  */
-function yesno_render_last_response(?stdClass $userattempt, context_module $modulecontext): string {
+function yesno_render_last_response(?stdClass $userattempt, context_module $modulecontext, stdClass $yesno): string {
     global $OUTPUT, $DB;
 
     if (!$userattempt) {
@@ -216,6 +245,7 @@ function yesno_render_last_response(?stdClass $userattempt, context_module $modu
     }
 
     $lastitem = reset($historyrows);
+    $iscorrect = yesno_response_is_correct($lastitem->response, $yesno);
 
     $data = [
         'has_history' => true,
@@ -225,6 +255,9 @@ function yesno_render_last_response(?stdClass $userattempt, context_module $modu
             'question' => format_text($lastitem->question, FORMAT_PLAIN),
             'response' => format_text($lastitem->response, FORMAT_PLAIN),
             'timestamp' => userdate($lastitem->timecreated),
+            'is_correct' => $iscorrect,
+            'feedback_icon' => $iscorrect ? '✓' : '○',
+            'feedback_label' => $iscorrect ? get_string('correctanswer', 'yesno') : get_string('incorrectanswer', 'yesno'),
         ]],
     ];
 
@@ -236,10 +269,11 @@ function yesno_render_last_response(?stdClass $userattempt, context_module $modu
  *
  * @param object $userattempt
  * @param context_module $modulecontext
+ * @param stdClass $yesno
  * @return string HTML output of conversation history
  * @package mod_yesno
  */
-function yesno_render_conversation_history(?stdClass $userattempt, context_module $modulecontext): string {
+function yesno_render_conversation_history(?stdClass $userattempt, context_module $modulecontext, stdClass $yesno): string {
     global $OUTPUT, $DB;
 
     if (!$userattempt) {
@@ -257,10 +291,14 @@ function yesno_render_conversation_history(?stdClass $userattempt, context_modul
 
     $historyitems = [];
     foreach ($historyrows as $item) {
+        $iscorrect = yesno_response_is_correct($item->response, $yesno);
         $historyitems[] = [
             'question' => format_text($item->question, FORMAT_PLAIN),
             'response' => format_text($item->response, FORMAT_PLAIN),
             'timestamp' => userdate($item->timecreated),
+            'is_correct' => $iscorrect,
+            'feedback_icon' => $iscorrect ? '✓' : '○',
+            'feedback_label' => $iscorrect ? get_string('correctanswer', 'yesno') : get_string('incorrectanswer', 'yesno'),
         ];
     }
 

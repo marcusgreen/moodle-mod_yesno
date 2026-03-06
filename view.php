@@ -178,7 +178,7 @@ if ($userattempt) {
 }
 
 // Display most recent submission and response above the textarea.
-echo yesno_render_last_response($userattempt, $modulecontext);
+echo yesno_render_last_response($userattempt, $modulecontext, $yesno);
 
 // Display reset button for teachers.
 if ($canmanage && $userattempt) {
@@ -200,7 +200,10 @@ if ($userattempt) {
 // Add JavaScript for character counter using AMD module.
 $PAGE->requires->js_call_amd('mod_yesno/charcounter', 'init');
 
+// Add JavaScript for UI interactions (help toggle, etc).
+$PAGE->requires->js_call_amd('mod_yesno/ui-interactions', 'init');
+
 // Display conversation history if available (moved to appear after question form).
-echo yesno_render_conversation_history($userattempt, $modulecontext);
+echo yesno_render_conversation_history($userattempt, $modulecontext, $yesno);
 
 echo $OUTPUT->footer();

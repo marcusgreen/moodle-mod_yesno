@@ -34,6 +34,7 @@ $string['charsremaining'] = 'Characters remaining: {$a->remaining}/{$a->max}';
 $string['clue'] = 'Clue for students';
 $string['clue_help'] = 'An optional clue or hint to help students with the game. This will be displayed to students.';
 $string['conversationhistory'] = 'Conversation History';
+$string['correctanswer'] = 'Correct!';
 $string['defaultattempts'] = 'Default attempts';
 $string['defaultattempts_desc'] = 'Default number of question attempts for a new activity.';
 $string['defaultprompt'] = 'Default prompt';
@@ -46,6 +47,25 @@ $string['gamefinishedmsg'] = 'The game has finished. You can view your results a
 $string['gamelost'] = 'Game Over';
 $string['gameresult'] = 'Game Result';
 $string['gamewon'] = 'Congratulations!';
+$string['help'] = 'How to Play';
+$string['helptext'] = '<strong>Welcome to Twenty Questions!</strong><br/>' .
+    '<p>Your goal is to identify a secret word or phrase by asking strategic yes/no questions.</p>' .
+    '<h4>How Scoring Works:</h4>' .
+    '<ul>' .
+    '<li>The fewer questions you ask, the higher your score</li>' .
+    '<li>Maximum score: {$a} points</li>' .
+    '<li>You have {$a->max} questions to find the secret</li>' .
+    '<li>If you guess the secret correctly within your question limit, you win!</li>' .
+    '<li>If you don\'t find it within the question limit, the game ends and you score 0 points</li>' .
+    '</ul>' .
+    '<h4>Tips for Success:</h4>' .
+    '<ul>' .
+    '<li>Ask questions that narrow down possibilities (e.g., "Is it a person?")</li>' .
+    '<li>Avoid asking too many similar questions</li>' .
+    '<li>Use the AI\'s responses to eliminate options</li>' .
+    '<li>Be specific - vague questions get vague answers</li>' .
+    '</ul>';
+$string['incorrectanswer'] = 'Not yet';
 $string['managemsg'] = 'You have management permissions for this activity.';
 $string['maxcharacters'] = 'Maximum characters per question';
 $string['maxcharacters_help'] = 'The maximum number of characters students can enter for each question.';

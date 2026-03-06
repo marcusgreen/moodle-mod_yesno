@@ -251,3 +251,139 @@
     color: #6c757d;
     font-style: italic;
 }
+
+/* Response feedback indicator styles */
+.history-response-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.history-item-correct .history-response-indicator {
+    background-color: #d4edda;
+    border-left: 4px solid #28a745;
+}
+
+.history-item-incorrect .history-response-indicator {
+    background-color: #f8f9fa;
+    border-left: 4px solid #6c757d;
+}
+
+.feedback-icon {
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.feedback-icon-correct {
+    color: #28a745;
+}
+
+.feedback-icon-incorrect {
+    color: #6c757d;
+}
+
+.feedback-label {
+    display: inline-block;
+}
+
+.feedback-correct {
+    color: #155724;
+}
+
+.feedback-incorrect {
+    color: #383d41;
+}
+
+/* Help section styles */
+.yesno-help-section {
+    margin-bottom: 20px;
+    border-radius: 6px;
+}
+
+.yesno-help-toggle {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.yesno-help-toggle:hover {
+    background-color: #f0f0f0;
+    border-color: #0056b3;
+    color: #0056b3;
+}
+
+.yesno-help-toggle.active {
+    background-color: #e7f3ff;
+    border-color: #0056b3;
+    color: #0056b3;
+}
+
+.yesno-help-content {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+.yesno-help-content.hidden {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        max-height: 500px;
+    }
+    to {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+    }
+}
+
+.yesno-help-content .alert {
+    margin-bottom: 0;
+    border-radius: 4px;
+}
+
+.yesno-help-content h5 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #004085;
+}
+
+.yesno-help-content h6 {
+    margin-top: 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #004085;
+}
+
+.yesno-help-content ul {
+    padding-left: 20px;
+    margin-bottom: 8px;
+}
+
+.yesno-help-content ul li {
+    margin-bottom: 6px;
+}

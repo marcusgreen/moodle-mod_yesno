@@ -19,6 +19,31 @@
     }
 }}
 <div class="yesno-question-form">
+    <div class="yesno-help-section">
+        <button type="button" class="yesno-help-toggle btn btn-sm btn-outline-secondary" id="help-toggle">
+            <span class="help-toggle-text">+ Show Help</span>
+        </button>
+        <div class="yesno-help-content" id="help-content" style="display: none;">
+            <div class="alert alert-info">
+                <h5>How to Play</h5>
+                <p><strong>Goal:</strong> Ask strategic yes/no questions to figure out the secret word.</p>
+                <h6>Scoring:</h6>
+                <ul class="small">
+                    <li>The fewer questions you ask, the higher your score</li>
+                    <li>You have a limited number of questions to find the answer</li>
+                    <li>If you identify the secret correctly, you win points!</li>
+                </ul>
+                <h6>Tips:</h6>
+                <ul class="small">
+                    <li>Ask questions that narrow down categories (Is it living? Is it a person?)</li>
+                    <li>Use the AI's responses to eliminate possibilities</li>
+                    <li>Avoid asking similar questions multiple times</li>
+                    <li>Be specific and strategic in your questioning</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <h3>{{ask_question_title}}</h3>
 
     {{#char_limit_info}}

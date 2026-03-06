@@ -23,7 +23,15 @@
 <div class="yesno-conversation-history">
     <h4>{{conversation_history_title}}</h4>
     {{#history_items}}
-    <div class="history-item">
+    <div class="history-item {{#is_correct}}history-item-correct{{/is_correct}}{{^is_correct}}history-item-incorrect{{/is_correct}}">
+        <div class="history-response-indicator">
+            <span class="feedback-icon {{#is_correct}}feedback-icon-correct{{/is_correct}}{{^is_correct}}feedback-icon-incorrect{{/is_correct}}">
+                {{feedback_icon}}
+            </span>
+            <span class="feedback-label {{#is_correct}}feedback-correct{{/is_correct}}{{^is_correct}}feedback-incorrect{{/is_correct}}">
+                {{feedback_label}}
+            </span>
+        </div>
         <div class="history-question-block">
             <div class="history-question-label">{{your_question_label}}</div>
             <div class="history-question-text">{{{question}}}</div>
