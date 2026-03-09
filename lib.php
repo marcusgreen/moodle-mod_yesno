@@ -375,6 +375,8 @@ function yesno_render_reset_button(context_module $modulecontext): string {
 function yesno_render_question_form(stdClass $yesno, context_module $modulecontext): string {
     global $OUTPUT;
 
+    $clue = (!empty($yesno->clues) && !empty($yesno->clues[0])) ? $yesno->clues[0] : '';
+
     $data = [
         'ask_question_title' => get_string('askquestion', 'yesno'),
         'char_limit_info' => true,
@@ -390,6 +392,9 @@ function yesno_render_question_form(stdClass $yesno, context_module $moduleconte
         'max_characters' => $yesno->max_characters,
         'enter_question_placeholder' => get_string('enteryourquestion', 'yesno'),
         'submit_button_text' => get_string('submitquestion', 'yesno'),
+        'clue' => $clue,
+        'has_clue' => !empty($clue),
+        'clue_label' => get_string('clue', 'yesno'),
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/question_form', $data);
@@ -592,6 +597,16 @@ function yesno_reset_attempt(stdClass $yesno, int $userid): bool {
 function yesno_start_attempt(stdClass $yesno, int $userid): stdClass {
     global $DB;
 
+    // Return existing attempt if one already exists (prevents reset on page refresh).
+    $existingattempt = $DB->get_record_sql(
+        'SELECT * FROM {yesno_attempts} WHERE userid = ? AND yesnoid = ? ORDER BY id DESC',
+        [$userid, $yesno->id],
+        IGNORE_MULTIPLE
+    );
+    if ($existingattempt) {
+        return $existingattempt;
+    }
+
     // Get all secrets for this activity.
     $secrets = $DB->get_records('yesno_secrets', ['yesnoid' => $yesno->id], 'sortorder');
 
@@ -647,7 +662,7 @@ function yesno_render_game_completion(stdClass $yesno, stdClass $userattempt, co
     // Build URLs with sesskey for security.
     $tryanotherurl = new moodle_url(
         $modulecontext->get_url(),
-        ['startattempt' => 1, 'sesskey' => sesskey()]
+        ['tryanother' => 1, 'sesskey' => sesskey()]
     );
 
     $finishurl = new moodle_url(

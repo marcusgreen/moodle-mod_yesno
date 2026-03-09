@@ -43,6 +43,15 @@ require_capability('mod/yesno:view', $modulecontext);
 $startattempt = optional_param('startattempt', 0, PARAM_INT);
 if ($startattempt && confirm_sesskey()) {
     yesno_start_attempt($yesno, $USER->id);
+    redirect(new moodle_url('/mod/yesno/view.php', ['id' => $cm->id]));
+}
+
+// Handle try another secret request - reset current attempt and start fresh.
+$tryanother = optional_param('tryanother', 0, PARAM_INT);
+if ($tryanother && confirm_sesskey()) {
+    yesno_reset_attempt($yesno, $USER->id);
+    yesno_start_attempt($yesno, $USER->id);
+    redirect(new moodle_url('/mod/yesno/view.php', ['id' => $cm->id]));
 }
 
 // Handle finish session request.

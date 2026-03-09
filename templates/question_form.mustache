@@ -24,6 +24,12 @@
     <form method="post" action="{{form_action}}" class="question-form">
         <input type="hidden" name="sesskey" value="{{sesskey}}">
 
+        {{#has_clue}}
+        <div class="yesno-clue-hint">
+            <span class="yesno-clue-label">{{clue_label}}:</span> {{{clue}}}
+        </div>
+        {{/has_clue}}
+
         <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: baseline;">
                 <div>

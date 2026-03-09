@@ -320,6 +320,22 @@
     color: #383d41;
 }
 
+/* Clue hint above textarea */
+.yesno-clue-hint {
+    background: #fff8e1;
+    border-left: 3px solid #f9a825;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.yesno-clue-label {
+    font-weight: bold;
+    color: #e65100;
+}
+
 /* Help section styles */
 .yesno-help-section {
     margin-bottom: 20px;
