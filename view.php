@@ -153,7 +153,7 @@ if (!$userattempt) {
 // Handle reset request (teachers only) - do this BEFORE loading attempt state.
 $resetuser = optional_param('resetuser', 0, PARAM_INT);
 if ($resetuser && $canmanage && confirm_sesskey()) {
-    yesno_reset_attempt($yesno, $USER->id);
+    yesno_reset_attempt($yesno, $resetuser);
     echo $OUTPUT->notification(get_string('sessionreset', 'yesno'), 'success');
     // Reload attempt state after reset.
     $attemptstate = lib::load_attempt_state($yesno, $USER->id);

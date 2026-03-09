@@ -34,7 +34,7 @@ class mod_yesno_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG, $DB;
+        global $CFG, $DB, $PAGE;
 
         $mform = $this->_form;
 
@@ -57,6 +57,32 @@ class mod_yesno_mod_form extends moodleform_mod {
 
         // Adding repeating group for secret/clue pairs.
         $mform->addElement('header', 'secretsheader', get_string('secrets', 'yesno'));
+
+        // Export/import toolbar for secret/clue content.
+        $iohtml = html_writer::start_div('mb-2');
+        if ($this->_instance) {
+            $exporturl = new moodle_url('/mod/yesno/export_secrets.php', ['id' => $this->_instance]);
+            $iohtml .= html_writer::link(
+                $exporturl,
+                get_string('exportsecrets', 'yesno'),
+                ['class' => 'btn btn-outline-secondary btn-sm me-2']
+            );
+        }
+        $iohtml .= html_writer::tag(
+            'label',
+            get_string('importsecrets', 'yesno'),
+            ['for' => 'id_importsecrets_file', 'class' => 'btn btn-outline-secondary btn-sm mb-0']
+        );
+        $iohtml .= html_writer::empty_tag('input', [
+            'type'   => 'file',
+            'id'     => 'id_importsecrets_file',
+            'accept' => '.json',
+            'class'  => 'visually-hidden',
+        ]);
+        $iohtml .= html_writer::end_div();
+        $mform->addElement('html', $iohtml);
+
+        $PAGE->requires->js_call_amd('mod_yesno/secrets_io', 'init');
 
         $repeatcount = 1;
         if ($instance = $this->_instance) {

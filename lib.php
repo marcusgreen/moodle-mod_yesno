@@ -558,21 +558,21 @@ function yesno_update_gradebook(stdClass $yesno, int $userid, float $score): boo
 function yesno_reset_attempt(stdClass $yesno, int $userid): bool {
     global $DB, $CFG;
 
-    // Get the attempt record.
-    $attempt = $DB->get_record('yesno_attempts', [
+    // Get all attempt records for this user (duplicates may exist in legacy data).
+    $attempts = $DB->get_records('yesno_attempts', [
         'userid' => $userid,
         'yesnoid' => $yesno->id,
     ]);
 
-    if (!$attempt) {
+    if (empty($attempts)) {
         return true; // No attempt to reset.
     }
 
-    // Delete history entries for this attempt.
-    $DB->delete_records('yesno_history', ['attemptid' => $attempt->id]);
-
-    // Delete the attempt record.
-    $DB->delete_records('yesno_attempts', ['id' => $attempt->id]);
+    // Delete history entries and attempts for every matching record.
+    foreach ($attempts as $attempt) {
+        $DB->delete_records('yesno_history', ['attemptid' => $attempt->id]);
+        $DB->delete_records('yesno_attempts', ['id' => $attempt->id]);
+    }
 
     // Reset the gradebook.
     require_once($CFG->libdir . '/gradelib.php');

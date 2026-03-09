@@ -40,11 +40,13 @@ $string['defaultattempts_desc'] = 'Default number of question attempts for a new
 $string['defaultprompt'] = 'Default prompt';
 $string['defaultprompt_desc'] = 'Default prompt for the AI system.';
 $string['defaultsystemprompt'] = 'Default System Prompt';
+$string['deletesecret'] = 'Delete this secret';
 $string['enteryourquestion'] = 'Enter your yes/no question here...';
 $string['errorgettingresponse'] = 'Error getting AI response';
 $string['eventattemptcompleted'] = 'Attempt completed';
 $string['eventattemptstarted'] = 'Attempt started';
 $string['eventquestionsubmitted'] = 'Question submitted';
+$string['exportsecrets'] = 'Export secrets (JSON)';
 $string['finalscore'] = 'Final Score';
 $string['finishsession'] = 'Finish Session';
 $string['gamefinishedmsg'] = 'The game has finished. You can view your results above.';
@@ -69,6 +71,11 @@ $string['helptext'] = '<strong>Welcome to Twenty Questions!</strong><br/>' .
     '<li>Use the AI\'s responses to eliminate options</li>' .
     '<li>Be specific - vague questions get vague answers</li>' .
     '</ul>';
+$string['importsecrets'] = 'Import secrets (JSON)';
+$string['importsecretsempty'] = 'The JSON file must contain a non-empty array of secret/clue objects.';
+$string['importsecretserror'] = 'Import error';
+$string['importsecretsneeded'] = 'More fields required';
+$string['importsecretsneededmsg'] = 'Your file has {$a->total} secrets but only {$a->needed} more field(s) are needed. Click "Add another secret" {$a->needed} more time(s), then import again.';
 $string['incorrectanswer'] = 'Secret not found, keep trying';
 $string['managemsg'] = 'You have management permissions for this activity.';
 $string['maxcharacters'] = 'Maximum characters per question';
