@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/yesno/db" VERSION="2026030705" COMMENT="XMLDB file for Moodle mod_yesno"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="yesno" COMMENT="Details about each yesno game instance">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="system_prompt" TYPE="text" NOTNULL="false" COMMENT="The instructions for the LLM"/>
+        <FIELD NAME="max_characters" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="200" COMMENT="Maximum characters allowed for student questions"/>
+        <FIELD NAME="max_grade" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="100" COMMENT="Maximum grade for this activity"/>
+        <FIELD NAME="maxquestions" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="20"/>
+        <FIELD NAME="max_questions" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="20" COMMENT="Maximum number of questions allowed before the game stops"/>
+        <FIELD NAME="show_answer_on_loss" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" COMMENT="Show the correct answer to student if they do not guess it"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="yesno_secrets" COMMENT="Secrets and clues for yesno game instances">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="yesnoid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link to the yesno instance"/>
+        <FIELD NAME="secret" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="The secret word for the game"/>
+        <FIELD NAME="clue" TYPE="text" NOTNULL="false" COMMENT="Optional clue for students"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" COMMENT="Sort order for multiple secrets"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_yesno" TYPE="foreign" FIELDS="yesnoid" REFTABLE="yesno" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="yesnoid" UNIQUE="false" FIELDS="yesnoid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="yesno_attempts" COMMENT="Tracks the conversation state for each user">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="yesnoid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link to the yesno instance"/>
+        <FIELD NAME="secretid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Link to the selected secret for this attempt"/>
+        <FIELD NAME="question_count" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active" COMMENT="active, win, loss"/>
+        <FIELD NAME="score" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" COMMENT="Current score for this attempt"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_yesno" TYPE="foreign" FIELDS="yesnoid" REFTABLE="yesno" REFFIELDS="id"/>
+        <KEY NAME="fk_secret" TYPE="foreign" FIELDS="secretid" REFTABLE="yesno_secrets" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="user_instance" UNIQUE="false" FIELDS="userid, yesnoid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="yesno_history" COMMENT="Individual question/response entries for each attempt">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link to the yesno_attempts instance"/>
+        <FIELD NAME="question" TYPE="text" NOTNULL="false" COMMENT="The student's question"/>
+        <FIELD NAME="response" TYPE="text" NOTNULL="false" COMMENT="The AI response"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_attempt" TYPE="foreign" FIELDS="attemptid" REFTABLE="yesno_attempts" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

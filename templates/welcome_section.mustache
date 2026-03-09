@@ -1,0 +1,37 @@
+{{!
+    @template mod_yesno/welcome_section
+
+    Welcome section shown before user starts their attempt
+    Displays activity introduction and instructions
+
+    Example context (json):
+    {
+        "show_welcome": true,
+        "description": "This is a Twenty Questions activity...",
+        "instructions": "Click the button below to begin...",
+        "show_admin_notice": true,
+        "admin_notice_text": "You have management permissions..."
+    }
+}}
+<div class="yesno-welcome-section">
+    {{#show_admin_notice}}
+    <div class="alert alert-info yesno-admin-notice">
+        <h5 class="alert-heading">
+            <i class="fa fa-shield"></i> {{#str}}adminonly, yesno{{/str}}
+        </h5>
+        <p class="mb-0">{{admin_notice_text}}</p>
+    </div>
+    {{/show_admin_notice}}
+
+    <div class="yesno-intro-box">
+        {{#description}}
+        <p class="yesno-activity-description">{{description}}</p>
+        {{/description}}
+
+        {{#instructions}}
+        <div class="yesno-instructions alert alert-light border">
+            <p class="mb-0">{{instructions}}</p>
+        </div>
+        {{/instructions}}
+    </div>
+</div>

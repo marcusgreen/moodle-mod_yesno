@@ -1,0 +1,73 @@
+{{!
+    @template mod_yesno/question_form
+
+    Question form template for yesno module
+    Renders the student question input form with character counter
+
+    Example context (json):
+    {
+        "ask_question_title": "Ask a Question",
+        "char_limit_info": true,
+        "char_limit_info_text": "Maximum 200 characters",
+        "char_counter_text": "0 / 200 characters",
+        "form_action": "/mod/yesno/view.php",
+        "sesskey": "abc123def456",
+        "your_question_label": "Your Question",
+        "max_characters": 200,
+        "enter_question_placeholder": "Enter your question here...",
+        "submit_button_text": "Submit Question"
+    }
+}}
+<div class="yesno-question-form">
+    <div class="yesno-help-section">
+        <button type="button" class="yesno-help-toggle btn btn-sm btn-outline-secondary" id="help-toggle">
+            <span class="help-toggle-text">+ Show Help</span>
+        </button>
+        <div class="yesno-help-content" id="help-content" style="display: none;">
+            <div class="alert alert-info">
+                <h5>How to Play</h5>
+                <p><strong>Goal:</strong> Ask strategic yes/no questions to figure out the secret word.</p>
+                <h6>Scoring:</h6>
+                <ul class="small">
+                    <li>The fewer questions you ask, the higher your score</li>
+                    <li>You have a limited number of questions to find the answer</li>
+                    <li>If you identify the secret correctly, you win points!</li>
+                </ul>
+                <h6>Tips:</h6>
+                <ul class="small">
+                    <li>Ask questions that narrow down categories (Is it living? Is it a person?)</li>
+                    <li>Use the AI's responses to eliminate possibilities</li>
+                    <li>Avoid asking similar questions multiple times</li>
+                    <li>Be specific and strategic in your questioning</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <h3>{{ask_question_title}}</h3>
+
+    {{#char_limit_info}}
+    <p class="char-limit-info">{{char_limit_info_text}}</p>
+    {{/char_limit_info}}
+
+    <form method="post" action="{{form_action}}" class="question-form">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+
+        <div class="form-group">
+            <div>
+                <label for="student_question" style="display: inline-block; margin-right: 8px;">{{your_question_label}}</label>
+                <span style="display: inline-block;">{{{help_button}}}</span>
+            </div>
+            <textarea id="student_question" name="student_question" class="form-control" rows="3"
+                      maxlength="{{max_characters}}" placeholder="{{enter_question_placeholder}}"
+                      required></textarea>
+            <div class="char-counter-wrapper">
+                <small class="char-counter" id="char-counter">{{char_counter_text}}</small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">{{submit_button_text}}</button>
+        </div>
+    </form>
+</div>

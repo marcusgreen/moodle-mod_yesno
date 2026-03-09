@@ -1,0 +1,35 @@
+{{#is_win}}
+<div class="yesno-game-completion yesno-game-won" id="yesno-win-celebration">
+    <div class="yesno-celebration-alert">
+        <div class="yesno-celebration-stars" aria-hidden="true">
+            <span class="yesno-star">&#9733;</span>
+            <span class="yesno-star">&#9733;</span>
+            <span class="yesno-star">&#9733;</span>
+            <span class="yesno-star">&#9733;</span>
+            <span class="yesno-star">&#9733;</span>
+        </div>
+        <h3><i class="fa fa-trophy yesno-trophy-icon"></i> {{game_won_title}}</h3>
+        <p>{{game_won_message}}</p>
+        {{#show_score}}
+        <p class="yesno-final-score"><strong>{{score_label}}</strong> {{final_score}}</p>
+        {{/show_score}}
+    </div>
+</div>
+{{/is_win}}
+{{#is_loss}}
+<div class="yesno-game-completion yesno-game-lost">
+    <div class="alert alert-info">
+        <h3><i class="fa fa-info-circle"></i> {{game_lost_title}}</h3>
+        <p>{{game_lost_message}}</p>
+    </div>
+</div>
+{{/is_loss}}
+
+<div class="yesno-completion-actions">
+    <a href="{{try_another_url}}" class="btn btn-primary">
+        <i class="fa fa-refresh"></i> {{try_another_text}}
+    </a>
+    <a href="{{finish_session_url}}" class="btn btn-secondary">
+        <i class="fa fa-sign-out"></i> {{finish_session_text}}
+    </a>
+</div>

@@ -1,0 +1,74 @@
+{{!
+    @template mod_yesno/attempt_info
+
+    Attempt information template for yesno module
+    Displays the current question count, limits, and score
+
+    Example context (json):
+    {
+        "has_attempt_info": true,
+        "attempt_info_text": "Question 5 of 20",
+        "progress_percentage": 25,
+        "question_count": 5,
+        "max_questions": 20,
+        "game_finished": false,
+        "is_win": false,
+        "is_loss": false,
+        "game_over_message": "",
+        "final_score": 0,
+        "max_score": 100,
+        "show_score": true,
+        "score": 50
+    }
+}}
+{{#has_attempt_info}}
+<div class="yesno-attempt-info">
+    <p>{{attempt_info_text}}</p>
+
+    {{#progress_percentage}}
+    <div class="yesno-progress-container">
+        <div class="progress" style="height: 24px;">
+            <div class="progress-bar" role="progressbar" style="width: {{progress_percentage}}%;"
+                 aria-valuenow="{{question_count}}" aria-valuemin="0" aria-valuemax="{{max_questions}}">
+                {{progress_percentage}}%
+            </div>
+        </div>
+    </div>
+    {{/progress_percentage}}
+    
+    {{#game_finished}}
+    <div class="yesno-game-result">
+        {{#is_win}}
+        <div class="alert alert-success">
+            <h4>{{#str}}gamewon, yesno{{/str}}</h4>
+            <p>{{game_over_message}}</p>
+            <p class="yesno-final-score">
+                <strong>{{#str}}finalscore, yesno{{/str}}:</strong> 
+                {{final_score}} / {{max_score}}
+            </p>
+        </div>
+        {{/is_win}}
+        
+        {{#is_loss}}
+        <div class="alert alert-danger">
+            <h4>{{#str}}gamelost, yesno{{/str}}</h4>
+            <p>{{game_over_message}}</p>
+            <p class="yesno-final-score">
+                <strong>{{#str}}finalscore, yesno{{/str}}:</strong> 
+                0 / {{max_score}}
+            </p>
+        </div>
+        {{/is_loss}}
+    </div>
+    {{/game_finished}}
+    
+    {{^game_finished}}
+    {{#show_score}}
+    <p class="yesno-score">
+        <strong>{{#str}}score, yesno{{/str}}:</strong> 
+        {{score}} / {{max_score}}
+    </p>
+    {{/show_score}}
+    {{/game_finished}}
+</div>
+{{/has_attempt_info}}
