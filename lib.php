@@ -607,7 +607,7 @@ function yesno_start_attempt(stdClass $yesno, int $userid): stdClass {
     $attempt->yesnoid = $yesno->id;
     $attempt->userid = $userid;
     $attempt->secretid = $selectedsecret->id;
-    $attempt->numberofquestions = 0;
+    $attempt->question_count = 0;
     $attempt->status = 'active';
     $attempt->score = 0;
     $attempt->timecreated = time();

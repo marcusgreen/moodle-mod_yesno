@@ -187,6 +187,12 @@ if (!empty($studentquestion) && confirm_sesskey()) {
     $gamefinished = $attemptstate['gamefinished'];
 }
 
+// Two-column layout: main content left, conversation history right.
+echo html_writer::start_tag('div', ['class' => 'row']);
+
+// Left column: attempt info, question form, etc.
+echo html_writer::start_tag('div', ['class' => 'col-md-7']);
+
 // Display attempt information using mustache template (after handling submission).
 // Only show if user has started an attempt.
 if ($userattempt) {
@@ -210,6 +216,15 @@ if ($userattempt && !$gamefinished) {
     echo yesno_render_question_form($yesno, $modulecontext);
 }
 
+echo html_writer::end_tag('div');
+
+// Right column: conversation history.
+echo html_writer::start_tag('div', ['class' => 'col-md-5 yesno-history-column']);
+echo yesno_render_conversation_history($userattempt, $modulecontext, $yesno);
+echo html_writer::end_tag('div');
+
+echo html_writer::end_tag('div');
+
 // Add JavaScript for character counter using AMD module.
 $PAGE->requires->js_call_amd('mod_yesno/charcounter', 'init');
 
@@ -218,8 +233,5 @@ $PAGE->requires->js_call_amd('mod_yesno/ui-interactions', 'init');
 
 // Add JavaScript for celebration effects on win.
 $PAGE->requires->js_call_amd('mod_yesno/celebration', 'init');
-
-// Display conversation history if available (moved to appear after question form).
-echo yesno_render_conversation_history($userattempt, $modulecontext, $yesno);
 
 echo $OUTPUT->footer();

@@ -36,12 +36,20 @@
     border-color: #ffeaa7;
 }
 
+.yesno-history-column {
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
 .yesno-conversation-history {
     background-color: #fff;
     border: 1px solid #dee2e6;
     border-radius: 4px;
     padding: 15px;
     margin-bottom: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .history-item {
@@ -134,8 +142,16 @@
 
 /* Progress bar styles */
 .yesno-progress-container {
-    margin-top: 15px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 8px;
+}
+
+.yesno-attempt-info > p {
+    margin-bottom: 6px;
+}
+
+.yesno-score {
+    margin-bottom: 6px;
 }
 
 .yesno-progress-container .progress {
@@ -187,8 +203,8 @@
 .history-item {
     border: 1px solid #dee2e6;
     border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 15px;
+    padding: 10px;
+    margin-bottom: 10px;
     background-color: #fafbfc;
     transition: box-shadow 0.2s ease;
 }
@@ -198,8 +214,8 @@
 }
 
 .history-question-block {
-    margin-bottom: 12px;
-    padding: 12px;
+    margin-bottom: 6px;
+    padding: 8px 10px;
     background-color: #e7f3ff;
     border-left: 4px solid #0066cc;
     border-radius: 4px;
@@ -222,8 +238,8 @@
 }
 
 .history-response-block {
-    margin-bottom: 12px;
-    padding: 12px;
+    margin-bottom: 6px;
+    padding: 8px 10px;
     background-color: #f0f8f0;
     border-left: 4px solid #28a745;
     border-radius: 4px;
@@ -247,7 +263,8 @@
 
 .history-timestamp {
     border-top: 1px solid #dee2e6;
-    padding-top: 8px;
+    padding-top: 6px;
+    margin-bottom: -4px;
     color: #6c757d;
     font-style: italic;
 }
@@ -256,9 +273,9 @@
 .history-response-indicator {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    padding: 8px 12px;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding: 4px 8px;
     border-radius: 4px;
     font-size: 13px;
     font-weight: 600;
