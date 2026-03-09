@@ -255,7 +255,7 @@ class lib {
 
             // Use the AI bridge to get response.
             $aibridge = new \tool_ai_bridge\ai_bridge($modulecontext->id);
-            $airesponse = $aibridge->perform_request($combinedprompt, 'twentyquestions');
+            $airesponse = $aibridge->perform_request($combinedprompt, 'feedback');
         } catch (Exception $e) {
             echo $OUTPUT->notification(
                 get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage(),
