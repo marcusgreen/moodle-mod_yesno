@@ -36,32 +36,6 @@
     </div>
     {{/progress_percentage}}
     
-    {{#game_finished}}
-    <div class="yesno-game-result">
-        {{#is_win}}
-        <div class="alert alert-success">
-            <h4>{{#str}}gamewon, yesno{{/str}}</h4>
-            <p>{{game_over_message}}</p>
-            <p class="yesno-final-score">
-                <strong>{{#str}}finalscore, yesno{{/str}}:</strong> 
-                {{final_score}} / {{max_score}}
-            </p>
-        </div>
-        {{/is_win}}
-        
-        {{#is_loss}}
-        <div class="alert alert-danger">
-            <h4>{{#str}}gamelost, yesno{{/str}}</h4>
-            <p>{{game_over_message}}</p>
-            <p class="yesno-final-score">
-                <strong>{{#str}}finalscore, yesno{{/str}}:</strong> 
-                0 / {{max_score}}
-            </p>
-        </div>
-        {{/is_loss}}
-    </div>
-    {{/game_finished}}
-    
     {{^game_finished}}
     {{#show_score}}
     <p class="yesno-score">

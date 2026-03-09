@@ -162,11 +162,41 @@ class lib {
         $historyrow->question = $studentquestion;
         $historyrow->response = $airesponse;
         $historyrow->timecreated = time();
-        $DB->insert_record('yesno_history', $historyrow);
+        $historyid = $DB->insert_record('yesno_history', $historyrow);
+        $historyrow->id = $historyid;
+
+        // Get context for event logging.
+        $cm = get_coursemodule_from_instance('yesno', $yesno->id, 0, false, MUST_EXIST);
+        $context = \context_module::instance($cm->id);
+
+        // Log the question submitted event.
+        $event = \mod_yesno\event\question_submitted::create([
+            'objectid' => $historyrow->id,
+            'context' => $context,
+            'other' => [
+                'yesnoid' => $yesno->id,
+                'attemptid' => $attemptid,
+                'questionnumber' => $questioncount + 1,
+            ],
+        ]);
+        $event->add_record_snapshot('yesno_history', $historyrow);
+        $event->trigger();
 
         // Update Moodle gradebook if the game is finished.
         if ($attemptdata->status === 'win' || $attemptdata->status === 'loss') {
             yesno_update_gradebook($yesno, $userid, $score);
+
+            // Log the attempt completed event.
+            $completeevent = \mod_yesno\event\attempt_completed::create([
+                'objectid' => $attemptid,
+                'context' => $context,
+                'other' => [
+                    'yesnoid' => $yesno->id,
+                    'status' => $attemptdata->status,
+                    'score' => $score,
+                ],
+            ]);
+            $completeevent->trigger();
         }
 
         // Refresh the attempt data by id.

@@ -614,6 +614,18 @@ function yesno_start_attempt(stdClass $yesno, int $userid): stdClass {
     $attempt->timemodified = time();
 
     $attempt->id = $DB->insert_record('yesno_attempts', $attempt);
+
+    // Log the attempt started event.
+    $cm = get_coursemodule_from_instance('yesno', $yesno->id, 0, false, MUST_EXIST);
+    $context = context_module::instance($cm->id);
+    $event = \mod_yesno\event\attempt_started::create([
+        'objectid' => $attempt->id,
+        'context' => $context,
+        'other' => ['yesnoid' => $yesno->id],
+    ]);
+    $event->add_record_snapshot('yesno_attempts', $attempt);
+    $event->trigger();
+
     return $attempt;
 }
 

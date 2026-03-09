@@ -92,6 +92,15 @@ $PAGE->set_title(format_string($yesno->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
+// Log the course module viewed event.
+$event = \mod_yesno\event\course_module_viewed::create([
+    'objectid' => $yesno->id,
+    'context' => $modulecontext,
+]);
+$event->add_record_snapshot('course', $course);
+$event->add_record_snapshot('yesno', $yesno);
+$event->trigger();
+
 // Add external stylesheet (must be done before header is printed).
 $PAGE->requires->css('/mod/yesno/styles.css');
 
@@ -182,6 +191,9 @@ if (!empty($studentquestion) && confirm_sesskey()) {
 // Only show if user has started an attempt.
 if ($userattempt) {
     echo yesno_render_attempt_info($yesno, $questioncount, $score, $modulecontext, $userattempt);
+    if ($gamefinished) {
+        echo yesno_render_game_completion($yesno, $userattempt, $modulecontext);
+    }
 }
 
 // Display most recent submission and response above the textarea.
@@ -193,13 +205,9 @@ if ($canmanage && $userattempt) {
 }
 
 // Student question input form using mustache template.
-// Only show if user has started an attempt.
-if ($userattempt) {
-    if (!$gamefinished) {
-        echo yesno_render_question_form($yesno, $modulecontext);
-    } else {
-        echo yesno_render_game_completion($yesno, $userattempt, $modulecontext);
-    }
+// Only show if user has started an attempt and game is not finished.
+if ($userattempt && !$gamefinished) {
+    echo yesno_render_question_form($yesno, $modulecontext);
 }
 
 // Add JavaScript for character counter using AMD module.
