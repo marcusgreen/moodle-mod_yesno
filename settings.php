@@ -46,7 +46,7 @@ $settings->add(new admin_setting_configtextarea(
 ));
 
 // Default number of attempts for questions.
-$defaultattempts = 20; // Default value, can be changed via admin settings.
+$defaultattempts = 20;
 $settings->add(new admin_setting_configtext(
     'mod_yesno/defaultattempts',
     get_string('defaultattempts', 'yesno'),
@@ -55,7 +55,7 @@ $settings->add(new admin_setting_configtext(
     PARAM_INT
 ));
 
-// New setting: maximum grade for the activity
+// Maximum grade for the activity.
 $defaultmaximumgrade = 20;
 $settings->add(new admin_setting_configtext(
     'mod_yesno/maximumgrade',
@@ -63,4 +63,18 @@ $settings->add(new admin_setting_configtext(
     get_string('maximumgrade_desc', 'yesno'),
     $defaultmaximumgrade,
     PARAM_INT
+));
+
+// AI backend selection.
+$backends = [
+    'tool_aiconnect'    => get_string('toolaiconnect', 'yesno'),
+    'core_ai_subsystem' => get_string('coreaisubsystem', 'yesno'),
+    'local_ai_manager'  => get_string('localaimanager', 'yesno'),
+];
+$settings->add(new admin_setting_configselect(
+    'mod_yesno/backend',
+    get_string('backends', 'yesno'),
+    get_string('backends_desc', 'yesno'),
+    'tool_aiconnect',
+    $backends
 ));

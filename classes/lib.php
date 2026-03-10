@@ -253,9 +253,12 @@ class lib {
         try {
             $combinedprompt = self::build_ai_prompt($yesno, $studentquestion);
 
-            // Use the AI bridge to get response.
-            $aibridge = new \tool_ai_bridge\ai_bridge($modulecontext->id);
+            $backend = get_config('mod_yesno', 'backend') ?: 'tool_aiconnect';
+            $aibridge = new \tool_ai_bridge\ai_bridge($modulecontext->id, $backend);
             $airesponse = $aibridge->perform_request($combinedprompt, 'feedback');
+            $airesponse = strip_tags($airesponse);
+            $airesponse = str_replace(['"', "'", "\u{201C}", "\u{201D}", "\u{2018}", "\u{2019}"], '', $airesponse);
+            $airesponse = trim($airesponse);
         } catch (Exception $e) {
             echo $OUTPUT->notification(
                 get_string('errorgettingresponse', 'yesno') . ': ' . $e->getMessage(),

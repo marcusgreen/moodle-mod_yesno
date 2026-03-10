@@ -220,6 +220,17 @@ function yesno_render_attempt_info(
 }
 
 /**
+ * Strip surrounding quote characters from an AI response string.
+ *
+ * @param string $response The raw AI response text.
+ * @return string The response with leading/trailing quotes removed.
+ * @package mod_yesno
+ */
+function yesno_strip_quotes(string $response): string {
+    return preg_replace('/^[\s\x{201C}\x{2018}"\']+|[\s\x{201D}\x{2019}"\']+$/u', '', $response);
+}
+
+/**
  * Check if a response contains the secret word
  *
  * @param string $response The AI response text
@@ -282,7 +293,7 @@ function yesno_render_last_response(?stdClass $userattempt, context_module $modu
         'ai_response_label' => get_string('airesponse', 'yesno'),
         'history_items' => [[
             'question' => format_text($lastitem->question, FORMAT_PLAIN),
-            'response' => format_text($lastitem->response, FORMAT_PLAIN),
+            'response' => format_text(yesno_strip_quotes($lastitem->response), FORMAT_HTML),
             'timestamp' => userdate($lastitem->timecreated),
             'is_correct' => $iscorrect,
             'feedback_icon' => $iscorrect ? '✓' : '○',
@@ -323,7 +334,7 @@ function yesno_render_conversation_history(?stdClass $userattempt, context_modul
         $iscorrect = yesno_response_is_correct($item->response, $yesno);
         $historyitems[] = [
             'question' => format_text($item->question, FORMAT_PLAIN),
-            'response' => format_text($item->response, FORMAT_PLAIN),
+            'response' => format_text(yesno_strip_quotes($item->response), FORMAT_HTML),
             'timestamp' => userdate($item->timecreated),
             'is_correct' => $iscorrect,
             'feedback_icon' => $iscorrect ? '✓' : '○',
