@@ -222,6 +222,32 @@ define(['core/notification', 'core/str'], function(Notification, Str) {
         /**
          * @param {object} params unused, reserved for future options
          */
-        init: SecretsIO.init
+        init: SecretsIO.init,
+
+        /**
+         * Load secrets into form fields.
+         *
+         * @param {Array} data Array of {secret, clue} objects.
+         */
+        loadSecrets: (data) => SecretsIO.loadSecrets(data),
+
+        /** Return the number of secret fields currently in the form. */
+        getSecretFieldCount: () => SecretsIO.getSecretFieldCount(),
+
+        /**
+         * Set a secret text field value.
+         *
+         * @param {number} index Field index.
+         * @param {string} value Value to set.
+         */
+        setSecretField: (index, value) => SecretsIO.setSecretField(index, value),
+
+        /**
+         * Set a clue editor field value.
+         *
+         * @param {number} index Field index.
+         * @param {string} value Value to set.
+         */
+        setClueField: (index, value) => SecretsIO.setClueField(index, value),
     };
 });

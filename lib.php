@@ -388,6 +388,11 @@ function yesno_render_question_form(stdClass $yesno, context_module $moduleconte
 
     $clue = (!empty($yesno->clues) && !empty($yesno->clues[0])) ? $yesno->clues[0] : '';
 
+    $abandonurl = new moodle_url(
+        $modulecontext->get_url(),
+        ['abandon' => 1, 'sesskey' => sesskey()]
+    );
+
     $data = [
         'ask_question_title' => get_string('askquestion', 'yesno'),
         'char_limit_info' => true,
@@ -406,6 +411,9 @@ function yesno_render_question_form(stdClass $yesno, context_module $moduleconte
         'clue' => $clue,
         'has_clue' => !empty($clue),
         'clue_label' => get_string('clue', 'yesno'),
+        'abandon_button_url' => $abandonurl->out(false),
+        'abandon_button_text' => get_string('abandonattempt', 'yesno'),
+        'abandon_confirm_text_json' => json_encode(get_string('abandonconfirm', 'yesno')),
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/question_form', $data);
@@ -560,7 +568,7 @@ function yesno_update_gradebook(stdClass $yesno, int $userid, float $score): boo
     $grade->timecreated = time();
     $grade->timemodified = time();
 
-    grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, $grade);
+    grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, $grade, ['itemname' => $yesno->name]);
     return true;
 }
 
@@ -592,7 +600,7 @@ function yesno_reset_attempt(stdClass $yesno, int $userid): bool {
 
     // Reset the gradebook.
     require_once($CFG->libdir . '/gradelib.php');
-    grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, null, ['userid' => $userid]);
+    grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, null, ['itemname' => $yesno->name, 'userid' => $userid]);
 
     return true;
 }
@@ -721,4 +729,30 @@ function yesno_render_start_attempt_button(context_module $modulecontext): strin
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/start_attempt_button', $data);
+}
+
+/**
+ * Render the abandon attempt button for students.
+ *
+ * @param context_module $modulecontext
+ * @return string HTML output
+ * @package mod_yesno
+ */
+function yesno_render_abandon_button(context_module $modulecontext): string {
+    global $OUTPUT;
+
+    $abandonurl = new moodle_url(
+        $modulecontext->get_url(),
+        ['abandon' => 1, 'sesskey' => sesskey()]
+    );
+
+    $confirmtext = get_string('abandonconfirm', 'yesno');
+
+    $data = [
+        'abandon_button_text' => get_string('abandonattempt', 'yesno'),
+        'abandon_button_url' => $abandonurl->out(false),
+        'abandon_confirm_text_json' => json_encode($confirmtext),
+    ];
+
+    return $OUTPUT->render_from_template('mod_yesno/abandon_button', $data);
 }

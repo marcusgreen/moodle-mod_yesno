@@ -41,12 +41,18 @@
             <textarea id="student_question" name="student_question" class="form-control" rows="3"
                       maxlength="{{max_characters}}" placeholder="{{enter_question_placeholder}}"
                       required></textarea>
-            <div class="form-group mt-2">
+            <div class="form-group mt-2" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <button type="submit" class="btn btn-primary">{{submit_button_text}}</button>
+                {{#abandon_button_url}}
+                <a href="{{abandon_button_url}}" class="btn btn-warning" id="yesno-abandon-button"
+                   onclick="return confirm({{abandon_confirm_text_json}});">
+                    {{abandon_button_text}}
+                </a>
+                {{/abandon_button_url}}
             </div>
         </div>
 
-        <div class="yesno-help-section">
+        <div class="yesno-help-section" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="yesno-help-toggle btn btn-sm btn-outline-secondary" id="help-toggle">
                 <span class="help-toggle-text">+ Show Help</span>
             </button>

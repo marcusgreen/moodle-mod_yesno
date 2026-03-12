@@ -54,6 +54,14 @@ if ($tryanother && confirm_sesskey()) {
     redirect(new moodle_url('/mod/yesno/view.php', ['id' => $cm->id]));
 }
 
+// Handle abandon attempt request - reset current attempt and start fresh with new secret.
+$abandon = optional_param('abandon', 0, PARAM_INT);
+if ($abandon && confirm_sesskey()) {
+    yesno_reset_attempt($yesno, $USER->id);
+    yesno_start_attempt($yesno, $USER->id);
+    redirect(new moodle_url('/mod/yesno/view.php', ['id' => $cm->id]));
+}
+
 // Handle finish session request.
 $finish = optional_param('finish', 0, PARAM_INT);
 if ($finish && confirm_sesskey()) {

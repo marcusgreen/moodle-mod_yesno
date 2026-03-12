@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,23 +12,25 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the yesno module.
+ * Web service definitions for mod_yesno.
  *
  * @package    mod_yesno
- * @copyright  2025 Your Name
+ * @copyright  2025 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026031000;        // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022112800;        // Requires Moodle 4.0.
-$plugin->component = 'mod_yesno';       // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '2.0 (Build: 2026031000)';
-$plugin->dependencies = [
-    'tool_ai_bridge' => 2026030800,
+$functions = [
+    'mod_yesno_generate_secrets' => [
+        'classname'     => 'mod_yesno\external\generate_secrets',
+        'methodname'    => 'execute',
+        'description'   => 'Generate secret/clue pairs using the configured AI backend.',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
 ];

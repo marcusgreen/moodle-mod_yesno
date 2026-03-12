@@ -52,6 +52,14 @@ define([], function() {
 
                 // Add input event listener.
                 this.textarea.addEventListener('input', () => this.updateCounter());
+
+                // Submit form on Enter (without Shift) if text has been entered.
+                this.textarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && this.textarea.value.trim().length > 0) {
+                        e.preventDefault();
+                        this.textarea.closest('form').submit();
+                    }
+                });
             }
         }
 

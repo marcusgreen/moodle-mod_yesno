@@ -65,6 +65,16 @@ $settings->add(new admin_setting_configtext(
     PARAM_INT
 ));
 
+// Default prompt for the Generate Secrets feature in the editing form.
+$defaultsecretsprompt = 'Create 10 secret/clue pairs on the topic of vegetables, ' .
+    'half of the pairs should include a clue';
+$settings->add(new admin_setting_configtextarea(
+    'mod_yesno/secretsprompt',
+    get_string('secretsprompt', 'yesno'),
+    get_string('secretsprompt_desc', 'yesno'),
+    $defaultsecretsprompt
+));
+
 // AI backend selection.
 $backends = [
     'tool_aiconnect'    => get_string('toolaiconnect', 'yesno'),

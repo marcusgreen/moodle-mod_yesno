@@ -84,6 +84,35 @@ class mod_yesno_mod_form extends moodleform_mod {
 
         $PAGE->requires->js_call_amd('mod_yesno/secrets_io', 'init');
 
+        // Generate Secrets section.
+        $secretsprompt = get_config('mod_yesno', 'secretsprompt');
+        if ($secretsprompt === false || $secretsprompt === '') {
+            $secretsprompt = get_string('secretspromptdefault', 'yesno');
+        }
+        $genhtml = html_writer::start_div('yesno-generate-secrets card card-body bg-light mb-3 p-3');
+        $genhtml .= html_writer::tag(
+            'label',
+            get_string('secretsprompt', 'yesno'),
+            ['for' => 'id_secretsprompt', 'class' => 'form-label fw-bold']
+        );
+        $genhtml .= html_writer::tag('textarea', s($secretsprompt), [
+            'id'    => 'id_secretsprompt',
+            'name'  => 'secretsprompt',
+            'class' => 'form-control mb-2',
+            'rows'  => 3,
+        ]);
+        $genhtml .= html_writer::tag('button', get_string('generatesecrets', 'yesno'), [
+            'type'  => 'button',
+            'id'    => 'id_generate_secrets_btn',
+            'class' => 'btn btn-secondary btn-sm',
+        ]);
+        $genhtml .= html_writer::end_div();
+        $mform->addElement('html', $genhtml);
+
+        $PAGE->requires->js_call_amd('mod_yesno/generate_secrets', 'init', [
+            $PAGE->context->id,
+        ]);
+
         $repeatcount = 1;
         if ($instance = $this->_instance) {
             $repeatcount = max(1, $DB->count_records('yesno_secrets', ['yesnoid' => $instance]));
@@ -98,7 +127,16 @@ class mod_yesno_mod_form extends moodleform_mod {
             'clue' => ['type' => PARAM_RAW],
         ];
 
-        $this->repeat_elements($repeatarray, $repeatcount, $repeateloptions, 'secret_repeats', 'secret_add_fields', 1, get_string('addsecret', 'yesno'), true);
+        $this->repeat_elements(
+            $repeatarray,
+            $repeatcount,
+            $repeateloptions,
+            'secret_repeats',
+            'secret_add_fields',
+            1,
+            get_string('addsecret', 'yesno'),
+            true
+        );
 
         // Add rules and help buttons for instances (support up to 10 repeats).
         for ($i = 0; $i < 10; $i++) {
@@ -123,7 +161,7 @@ class mod_yesno_mod_form extends moodleform_mod {
         $mform->setType('max_grade', PARAM_INT);
         $defaultmaxgrade = get_config('mod_yesno', 'maximumgrade');
         if ($defaultmaxgrade === false) {
-            $defaultmaxgrade = 20; // fallback default
+            $defaultmaxgrade = 20; // Fallback default.
         }
         $mform->setDefault('max_grade', $defaultmaxgrade);
         $mform->addRule('max_grade', null, 'numeric', null, 'client');
@@ -151,6 +189,11 @@ class mod_yesno_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+    /**
+     * Pre-process form data before it is set as form defaults.
+     *
+     * @param array $defaultvalues Form default values passed by reference.
+     */
     public function data_preprocessing(&$defaultvalues) {
         global $DB;
 

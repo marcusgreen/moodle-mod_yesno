@@ -22,6 +22,8 @@
  * @package mod_yesno
  */
 
+$string['abandonattempt'] = 'Abandon attempt';
+$string['abandonconfirm'] = 'Are you sure you want to abandon this attempt? Your progress will be lost and a new secret will be chosen.';
 $string['activitydescription'] = 'This is a Twenty Questions activity where students can engage in the classic guessing game.';
 $string['addsecret'] = 'Add another secret';
 $string['adminonly'] = 'Teacher/Admin Notice';
@@ -48,6 +50,7 @@ $string['defaultsystemprompt'] = 'Default System Prompt';
 $string['deletesecret'] = 'Delete this secret';
 $string['enteryourquestion'] = 'Enter your yes/no question here...';
 $string['errorgettingresponse'] = 'Error getting AI response';
+$string['errorparsingjson'] = 'Could not parse AI response as JSON. Try again or adjust the prompt.';
 $string['eventattemptcompleted'] = 'Attempt completed';
 $string['eventattemptstarted'] = 'Attempt started';
 $string['eventquestionsubmitted'] = 'Question submitted';
@@ -58,6 +61,9 @@ $string['gamefinishedmsg'] = 'The game has finished. You can view your results a
 $string['gamelost'] = 'Game Over';
 $string['gameresult'] = 'Game Result';
 $string['gamewon'] = 'Congratulations!';
+$string['generatesecrets'] = 'Generate Secrets';
+$string['generatesecretserror'] = 'Error generating secrets';
+$string['generating'] = 'Generating...';
 $string['help'] = 'How to Play';
 $string['helptext'] = '<strong>Welcome to Twenty Questions!</strong><br/>' .
     '<p>Your goal is to identify a secret word or phrase by asking strategic yes/no questions.</p>' .
@@ -105,6 +111,10 @@ $string['score'] = 'Score';
 $string['secret'] = 'Secret';
 $string['secret_help'] = 'The secret that students need to guess in the Twenty Questions game.';
 $string['secrets'] = 'Secrets and Clues';
+$string['secretsprompt'] = 'Generate secrets prompt';
+$string['secretsprompt_desc'] = 'Default prompt shown in the editing form for AI-generated secret/clue pairs.';
+$string['secretspromptdefault'] = 'Create 10 secret/clue pairs on the topic of vegetables, ' .
+    'half of the pairs should include a clue';
 $string['sessionreset'] = 'Session has been reset successfully.';
 $string['showanswer'] = 'Show correct answer when student does not guess it';
 $string['showanswer_help'] = 'If enabled, the correct answer will be displayed to the student at the ' .
