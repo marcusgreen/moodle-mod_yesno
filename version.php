@@ -24,11 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026031000;        // The current module version (Date: YYYYMMDDXX).
+$plugin->version   = 2026032502;        // The current module version (Date: YYYYMMDDXX).
 $plugin->requires  = 2022112800;        // Requires Moodle 4.0.
 $plugin->component = 'mod_yesno';       // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '2.0 (Build: 2026031000)';
+$plugin->release   = '2.0 (Build: 2026032502)';
 $plugin->dependencies = [
     'tool_ai_bridge' => 2026030800,
 ];

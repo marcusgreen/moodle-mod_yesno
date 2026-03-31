@@ -185,6 +185,17 @@ $questioncount = $attemptstate['questioncount'];
 $score = $attemptstate['score'];
 $gamefinished = $attemptstate['gamefinished'];
 
+// Handle Am I warm request.
+$checkwarm = optional_param('checkwarm', 0, PARAM_INT);
+if ($checkwarm && confirm_sesskey() && $userattempt && !$gamefinished) {
+    $warmresult = yesno_check_warm($yesno, $userattempt, $modulecontext);
+    if ($warmresult === 'yes') {
+        echo $OUTPUT->notification(get_string('warmresultyes', 'yesno'), 'info');
+    } else if ($warmresult === 'no') {
+        echo $OUTPUT->notification(get_string('warmresultno', 'yesno'), 'warning');
+    }
+}
+
 // Handle form submission BEFORE displaying attempt info.
 $studentquestion = optional_param('student_question', '', PARAM_TEXT);
 
@@ -230,7 +241,7 @@ if ($canmanage && $userattempt) {
 // Student question input form using mustache template.
 // Only show if user has started an attempt and game is not finished.
 if ($userattempt && !$gamefinished) {
-    echo yesno_render_question_form($yesno, $modulecontext);
+    echo yesno_render_question_form($yesno, $modulecontext, $userattempt);
 }
 
 echo html_writer::end_tag('div');

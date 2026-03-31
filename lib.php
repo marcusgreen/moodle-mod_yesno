@@ -80,6 +80,9 @@ function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool 
     unset($data->secret);
     unset($data->clue);
 
+    // Checkboxes are absent from submitted data when unchecked.
+    $data->amiwarm = !empty($data->amiwarm) ? 1 : 0;
+
     // Update main yesno record.
     $result = $DB->update_record('yesno', $data);
 
@@ -380,17 +383,23 @@ function yesno_render_reset_button(context_module $modulecontext): string {
  *
  * @param object $yesno
  * @param context_module $modulecontext
+ * @param stdClass|null $userattempt
  * @return string HTML output of question form
  * @package mod_yesno
  */
-function yesno_render_question_form(stdClass $yesno, context_module $modulecontext): string {
-    global $OUTPUT;
+function yesno_render_question_form(stdClass $yesno, context_module $modulecontext, ?stdClass $userattempt = null): string {
+    global $OUTPUT, $DB;
 
     $clue = (!empty($yesno->clues) && !empty($yesno->clues[0])) ? $yesno->clues[0] : '';
 
     $abandonurl = new moodle_url(
         $modulecontext->get_url(),
         ['abandon' => 1, 'sesskey' => sesskey()]
+    );
+
+    $warmurl = new moodle_url(
+        $modulecontext->get_url(),
+        ['checkwarm' => 1, 'sesskey' => sesskey()]
     );
 
     $data = [
@@ -414,6 +423,10 @@ function yesno_render_question_form(stdClass $yesno, context_module $moduleconte
         'abandon_button_url' => $abandonurl->out(false),
         'abandon_button_text' => get_string('abandonattempt', 'yesno'),
         'abandon_confirm_text_json' => json_encode(get_string('abandonconfirm', 'yesno')),
+        'show_warm_button' => !empty($yesno->amiwarm) && $userattempt &&
+            $DB->count_records('yesno_history', ['attemptid' => $userattempt->id]) >= 3,
+        'warm_button_url' => $warmurl->out(false),
+        'warm_button_text' => get_string('amiwarmbtn', 'yesno'),
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/question_form', $data);
@@ -458,6 +471,9 @@ function yesno_add_instance(stdClass $yesno): int {
     // Unset these from the main record before insert.
     unset($yesno->secret);
     unset($yesno->clue);
+
+    // Checkboxes are absent from submitted data when unchecked.
+    $yesno->amiwarm = !empty($yesno->amiwarm) ? 1 : 0;
 
     // Insert main yesno record.
     $yesnoid = $DB->insert_record('yesno', $yesno);
@@ -729,6 +745,67 @@ function yesno_render_start_attempt_button(context_module $modulecontext): strin
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/start_attempt_button', $data);
+}
+
+/**
+ * Ask the AI if the student is getting warmer (closer to the secret).
+ *
+ * Reads the last 3 question/response pairs from yesno_history for the
+ * current attempt, builds a prompt that includes the secret, and asks
+ * the AI to reply with "yes" or "no".
+ *
+ * @param object $yesno The yesno activity object.
+ * @param object $userattempt The current attempt record.
+ * @param context_module $modulecontext The module context.
+ * @return string 'yes', 'no', or empty string on error.
+ * @package mod_yesno
+ */
+function yesno_check_warm(stdClass $yesno, stdClass $userattempt, context_module $modulecontext): string {
+    global $DB;
+    // Need at least one history entry to evaluate.
+    $historyrows = $DB->get_records(
+        'yesno_history',
+        ['attemptid' => $userattempt->id],
+        'id DESC',
+        '*',
+        0,
+        3
+    );
+    if (empty($historyrows)) {
+        return '';
+    }
+
+    // Get the secret for this attempt.
+    $secret = $DB->get_field('yesno_secrets', 'secret', ['id' => $userattempt->secretid]);
+    if ($secret === false) {
+        return '';
+    }
+
+    // Build Q&A summary (oldest first).
+    $pairs = [];
+    foreach (array_reverse($historyrows) as $row) {
+        $pairs[] = 'Q: ' . $row->question . ' | A: ' . $row->response;
+    }
+    $combined = implode(' || ', $pairs);
+
+    $prompt = 'The secret word or phrase is "' . $secret . '". ' .
+        'The student\'s recent questions and responses are: ' . $combined . '. ' .
+        'Is the student getting closer to discovering the secret? ' .
+        'Reply with only "yes" or "no".';
+
+    try {
+        $backend = get_config('mod_yesno', 'backend') ?: 'tool_aiconnect';
+        $aibridge = new \tool_ai_bridge\ai_bridge($modulecontext->id, $backend);
+        $airesponse = $aibridge->perform_request($prompt, 'feedback');
+        $airesponse = strip_tags($airesponse);
+        $airesponse = strtolower(trim($airesponse));
+        if (strpos($airesponse, 'yes') !== false) {
+            return 'yes';
+        }
+        return 'no';
+    } catch (Exception $e) {
+        return '';
+    }
 }
 
 /**

@@ -43,8 +43,11 @@
                       required></textarea>
             <div class="form-group mt-2" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <button type="submit" class="btn btn-primary">{{submit_button_text}}</button>
+                {{#show_warm_button}}
+                <a href="{{warm_button_url}}" class="btn btn-warning">{{warm_button_text}}</a>
+                {{/show_warm_button}}
                 {{#abandon_button_url}}
-                <a href="{{abandon_button_url}}" class="btn btn-warning" id="yesno-abandon-button"
+                <a href="{{abandon_button_url}}" class="btn btn-outline-danger" id="yesno-abandon-button"
                    onclick="return confirm({{abandon_confirm_text_json}});">
                     {{abandon_button_text}}
                 </a>

@@ -242,5 +242,31 @@ function xmldb_yesno_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026030706, 'yesno');
     }
 
+    if ($oldversion < 2026032501) {
+        // Add amiwarm field to yesno table (may exist as iswarm from earlier dev build).
+        $table = new xmldb_table('yesno');
+        $field = new xmldb_field('amiwarm', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'show_answer_on_loss');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Yesno savepoint reached.
+        upgrade_mod_savepoint(true, 2026032501, 'yesno');
+    }
+
+    if ($oldversion < 2026032502) {
+        // Rename iswarm to amiwarm if the old column still exists.
+        $table = new xmldb_table('yesno');
+        $oldfield = new xmldb_field('iswarm', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'show_answer_on_loss');
+
+        if ($dbman->field_exists($table, $oldfield)) {
+            $dbman->rename_field($table, $oldfield, 'amiwarm');
+        }
+
+        // Yesno savepoint reached.
+        upgrade_mod_savepoint(true, 2026032502, 'yesno');
+    }
+
     return true;
 }
