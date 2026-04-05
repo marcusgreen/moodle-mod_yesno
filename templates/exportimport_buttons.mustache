@@ -1,0 +1,7 @@
+<div class="mb-2">
+    {{#has_instance}}
+    <a href="{{export_url}}" class="btn btn-outline-secondary btn-sm me-2">{{export_label}}</a>
+    {{/has_instance}}
+    <label for="id_importsecrets_file" class="btn btn-outline-secondary btn-sm mb-0">{{import_label}}</label>
+    <input type="file" id="id_importsecrets_file" accept=".json" class="visually-hidden">
+</div>

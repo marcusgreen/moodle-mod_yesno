@@ -34,7 +34,7 @@ class mod_yesno_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG, $DB, $PAGE;
+        global $CFG, $DB, $OUTPUT, $PAGE;
 
         $mform = $this->_form;
 
@@ -135,28 +135,15 @@ class mod_yesno_mod_form extends moodleform_mod {
         $mform->addElement('header', 'exportimportheader', get_string('exportimportsecrets', 'yesno'));
         $mform->setExpanded('exportimportheader', false);
 
-        $iohtml = html_writer::start_div('mb-2');
-        if ($this->_instance) {
-            $exporturl = new moodle_url('/mod/yesno/export_secrets.php', ['id' => $this->_instance]);
-            $iohtml .= html_writer::link(
-                $exporturl,
-                get_string('exportsecrets', 'yesno'),
-                ['class' => 'btn btn-outline-secondary btn-sm me-2']
-            );
-        }
-        $iohtml .= html_writer::tag(
-            'label',
-            get_string('importsecrets', 'yesno'),
-            ['for' => 'id_importsecrets_file', 'class' => 'btn btn-outline-secondary btn-sm mb-0']
-        );
-        $iohtml .= html_writer::empty_tag('input', [
-            'type'   => 'file',
-            'id'     => 'id_importsecrets_file',
-            'accept' => '.json',
-            'class'  => 'visually-hidden',
-        ]);
-        $iohtml .= html_writer::end_div();
-        $mform->addElement('html', $iohtml);
+        $templatecontext = [
+            'has_instance' => (bool) $this->_instance,
+            'export_url'   => $this->_instance
+                ? (new moodle_url('/mod/yesno/export_secrets.php', ['id' => $this->_instance]))->out(false)
+                : '',
+            'export_label' => get_string('exportsecrets', 'yesno'),
+            'import_label' => get_string('importsecrets', 'yesno'),
+        ];
+        $mform->addElement('html', $OUTPUT->render_from_template('mod_yesno/exportimport_buttons', $templatecontext));
 
         $PAGE->requires->js_call_amd('mod_yesno/secrets_io', 'init');
 
