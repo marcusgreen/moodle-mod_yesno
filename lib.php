@@ -29,7 +29,7 @@
  * @return bool|null True if module supports feature, false if not, null if unknown
  * @package mod_yesno
  */
-function yesno_supports(string $feature): ?bool {
+function yesno_supports(string $feature): bool | string | null {
     switch ($feature) {
         case FEATURE_MOD_INTRO:
             return true;

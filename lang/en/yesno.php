@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['abandonattempt'] = 'Abandon attempt';
 $string['abandonconfirm'] = 'Are you sure you want to abandon this attempt? ' .
     'Your progress will be lost and a new secret will be chosen.';
 $string['activitydescription'] = 'This is a Twenty Questions activity where students can engage in the classic guessing game.';
-$string['abandonattempt'] = 'Abandon attempt';
 $string['addinstance'] = 'Add a new Yes/No activity';
 $string['addsecret'] = 'Add another secret';
 $string['adminonly'] = 'Teacher/Admin Notice';
