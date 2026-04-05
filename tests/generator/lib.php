@@ -26,8 +26,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * yesno module test data generator.
  */
@@ -41,7 +39,7 @@ class mod_yesno_generator extends testing_module_generator {
      * @return stdClass The created module record (including id, course, etc.).
      */
     public function create_instance($record = null, $options = null) {
-        $record = (object) (array) $record; // ensure we have an object.
+        $record = (object) (array) $record; // Ensure we have an object.
 
         // Required fields with sensible defaults.
         if (empty($record->name)) {

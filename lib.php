@@ -49,8 +49,8 @@ function yesno_supports(string $feature): ?bool {
 /**
  * Update a yesno instance
  *
- * @param object $data
- * @param object $mform
+ * @param stdClass $data
+ * @param moodleform|null $mform
  * @return bool true if successful
  * @package mod_yesno
  */
@@ -147,11 +147,11 @@ function yesno_delete_instance(int $id): bool {
 /**
  * Render attempt information using mustache template
  *
- * @param object $yesno
+ * @param stdClass $yesno
  * @param int $questioncount
  * @param int $score
  * @param context_module $modulecontext
- * @param object $userattempt
+ * @param stdClass|null $userattempt
  * @return string HTML output of attempt information
  * @package mod_yesno
  */
@@ -237,7 +237,7 @@ function yesno_strip_quotes(string $response): string {
  * Check if a response contains the secret word
  *
  * @param string $response The AI response text
- * @param object $yesno The yesno activity object
+ * @param stdClass $yesno The yesno activity object
  * @return bool True if the response contains the secret
  * @package mod_yesno
  */
@@ -269,7 +269,7 @@ function yesno_response_is_correct(string $response, stdClass $yesno): bool {
 /**
  * Render the last (most recent) response only
  *
- * @param object $userattempt
+ * @param stdClass|null $userattempt
  * @param context_module $modulecontext
  * @param stdClass $yesno
  * @return string HTML output of the last response
@@ -310,7 +310,7 @@ function yesno_render_last_response(?stdClass $userattempt, context_module $modu
 /**
  * Render conversation history (excluding the last response) using mustache template
  *
- * @param object $userattempt
+ * @param stdClass|null $userattempt
  * @param context_module $modulecontext
  * @param stdClass $yesno
  * @return string HTML output of conversation history
@@ -381,7 +381,7 @@ function yesno_render_reset_button(context_module $modulecontext): string {
 /**
  * Render question form using mustache template
  *
- * @param object $yesno
+ * @param stdClass $yesno
  * @param context_module $modulecontext
  * @param stdClass|null $userattempt
  * @return string HTML output of question form
@@ -438,7 +438,7 @@ function yesno_render_question_form(stdClass $yesno, context_module $moduleconte
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param object $yesno
+ * @param stdClass $yesno
  * @return int
  * @package mod_yesno
  */
@@ -507,7 +507,7 @@ function yesno_add_instance(stdClass $yesno): int {
 /**
  * Process a user's attempt, calculate the score, and determine the game status.
  *
- * @param object $yesno The yesno activity object.
+ * @param stdClass $yesno The yesno activity object.
  * @param string $studentquestion The student's submitted question.
  * @param string $airesponse The response from the AI.
  * @param int $currentquestion The number of the current question.
@@ -568,9 +568,10 @@ function yesno_process_attempt(
 /**
  * Update the Moodle gradebook with the user's score for the yesno activity.
  *
- * @param object $yesno The yesno activity object.
+ * @param stdClass $yesno The yesno activity object.
  * @param int $userid The user's ID.
  * @param float $score The score to be recorded.
+ * @return bool True if successful.
  */
 function yesno_update_gradebook(stdClass $yesno, int $userid, float $score): bool {
     global $CFG;
@@ -591,7 +592,7 @@ function yesno_update_gradebook(stdClass $yesno, int $userid, float $score): boo
 /**
  * Reset a user's attempt for a yesno activity.
  *
- * @param object $yesno The yesno activity object.
+ * @param stdClass $yesno The yesno activity object.
  * @param int $userid The user's ID.
  * @return bool True if successful.
  */
@@ -616,7 +617,16 @@ function yesno_reset_attempt(stdClass $yesno, int $userid): bool {
 
     // Reset the gradebook.
     require_once($CFG->libdir . '/gradelib.php');
-    grade_update('mod/yesno', $yesno->course, 'mod', 'yesno', $yesno->id, 0, null, ['itemname' => $yesno->name, 'userid' => $userid]);
+    grade_update(
+        'mod/yesno',
+        $yesno->course,
+        'mod',
+        'yesno',
+        $yesno->id,
+        0,
+        null,
+        ['itemname' => $yesno->name, 'userid' => $userid]
+    );
 
     return true;
 }
@@ -624,9 +634,9 @@ function yesno_reset_attempt(stdClass $yesno, int $userid): bool {
 /**
  * Create a new attempt for a user by selecting a random secret
  *
- * @param object $yesno The yesno activity object.
+ * @param stdClass $yesno The yesno activity object.
  * @param int $userid The user's ID.
- * @return object The created attempt record.
+ * @return stdClass The created attempt record.
  * @package mod_yesno
  */
 function yesno_start_attempt(stdClass $yesno, int $userid): stdClass {
@@ -754,8 +764,8 @@ function yesno_render_start_attempt_button(context_module $modulecontext): strin
  * current attempt, builds a prompt that includes the secret, and asks
  * the AI to reply with "yes" or "no".
  *
- * @param object $yesno The yesno activity object.
- * @param object $userattempt The current attempt record.
+ * @param stdClass $yesno The yesno activity object.
+ * @param stdClass $userattempt The current attempt record.
  * @param context_module $modulecontext The module context.
  * @return string 'yes', 'no', or empty string on error.
  * @package mod_yesno

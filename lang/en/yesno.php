@@ -22,12 +22,17 @@
  * @package mod_yesno
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $string['abandonattempt'] = 'Abandon attempt';
 $string['abandonconfirm'] = 'Are you sure you want to abandon this attempt? Your progress will be lost and a new secret will be chosen.';
 $string['activitydescription'] = 'This is a Twenty Questions activity where students can engage in the classic guessing game.';
 $string['addsecret'] = 'Add another secret';
 $string['adminonly'] = 'Teacher/Admin Notice';
 $string['airesponse'] = 'AI Response';
+$string['amiwarm'] = 'Include Am I warm? button';
+$string['amiwarm_help'] = 'If enabled, students will see an "Am I warm?" button that asks the AI ' .
+    'whether they are getting closer to the secret based on their last 3 questions.';
 $string['amiwarmbtn'] = 'Am I warm?';
 $string['askquestion'] = 'Ask a question';
 $string['attemptsinfo'] = 'You have asked {$a->count} out of {$a->max} questions.';
@@ -60,9 +65,9 @@ $string['exportsecrets'] = 'Export secrets (JSON)';
 $string['finalscore'] = 'Final Score';
 $string['finishsession'] = 'Finish Session';
 $string['gamefinishedmsg'] = 'The game has finished. You can view your results above.';
-$string['gamesettings'] = 'Game Settings';
 $string['gamelost'] = 'Game Over';
 $string['gameresult'] = 'Game Result';
+$string['gamesettings'] = 'Game Settings';
 $string['gamewon'] = 'Congratulations!';
 $string['generatesecrets'] = 'Generate Secrets';
 $string['generatesecrets_help'] = 'Use AI to automatically generate secret/clue pairs. ' .
@@ -93,9 +98,6 @@ $string['importsecretserror'] = 'Import error';
 $string['importsecretsneeded'] = 'More fields required';
 $string['importsecretsneededmsg'] = 'Your file has {$a->total} secrets but only {$a->needed} more field(s) are needed. Click "Add another secret" {$a->needed} more time(s), then import again.';
 $string['incorrectanswer'] = 'Secret not found, keep trying';
-$string['amiwarm'] = 'Include Am I warm? button';
-$string['amiwarm_help'] = 'If enabled, students will see an "Am I warm?" button that asks the AI ' .
-    'whether they are getting closer to the secret based on their last 3 questions.';
 $string['localaimanager'] = 'Local AI manager';
 $string['managemsg'] = 'You have management permissions for this activity.';
 $string['maxcharacters'] = 'Maximum characters per question';
