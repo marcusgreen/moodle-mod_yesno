@@ -1,3 +1,14 @@
+{{!
+    @template mod_yesno/start_attempt_button
+
+    Template for the start attempt button.
+
+    Example context (json):
+    {
+        "start_button_text": "Start your attempt",
+        "start_button_url": "http://example.com/mod/yesno/view.php?startattempt=1"
+    }
+}}
 {{#start_button_text}}
 <div class="yesno-start-attempt-container">
     <a href="{{start_button_url}}" class="btn btn-primary btn-lg yesno-start-btn" id="yesno-start-button">

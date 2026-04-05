@@ -24,9 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['abandonattempt'] = 'Abandon attempt';
-$string['abandonconfirm'] = 'Are you sure you want to abandon this attempt? Your progress will be lost and a new secret will be chosen.';
+$string['abandonconfirm'] = 'Are you sure you want to abandon this attempt? ' .
+    'Your progress will be lost and a new secret will be chosen.';
 $string['activitydescription'] = 'This is a Twenty Questions activity where students can engage in the classic guessing game.';
+$string['abandonattempt'] = 'Abandon attempt';
+$string['addinstance'] = 'Add a new Yes/No activity';
 $string['addsecret'] = 'Add another secret';
 $string['adminonly'] = 'Teacher/Admin Notice';
 $string['airesponse'] = 'AI Response';
@@ -96,7 +98,8 @@ $string['importsecrets'] = 'Import secrets (JSON)';
 $string['importsecretsempty'] = 'The JSON file must contain a non-empty array of secret/clue objects.';
 $string['importsecretserror'] = 'Import error';
 $string['importsecretsneeded'] = 'More fields required';
-$string['importsecretsneededmsg'] = 'Your file has {$a->total} secrets but only {$a->needed} more field(s) are needed. Click "Add another secret" {$a->needed} more time(s), then import again.';
+$string['importsecretsneededmsg'] = 'Your file has {$a->total} secrets but only {$a->needed} more field(s) are needed. ' .
+    'Click "Add another secret" {$a->needed} more time(s), then import again.';
 $string['incorrectanswer'] = 'Secret not found, keep trying';
 $string['localaimanager'] = 'Local AI manager';
 $string['managemsg'] = 'You have management permissions for this activity.';
@@ -107,7 +110,8 @@ $string['maxgrade_help'] = 'The highest possible grade that can be awarded for t
 $string['maximumgrade'] = 'Maximum grade';
 $string['maximumgrade_desc'] = 'Default maximum grade for the activity.';
 $string['maxquestions'] = 'Maximum questions';
-$string['maxquestions_help'] = 'The maximum number of questions a student can ask before the game ends. If the student does not guess the secret within this limit, the game ends with a score of 0.';
+$string['maxquestions_help'] = 'The maximum number of questions a student can ask before the game ends. ' .
+    'If the student does not guess the secret within this limit, the game ends with a score of 0.';
 $string['maxquestionsreached'] = 'You have reached the maximum number of questions allowed for this activity.';
 $string['modulename'] = 'Twenty questions';
 $string['modulename_help'] = 'The Twenty Questions activity allows students to play the classic guessing game.';
@@ -131,7 +135,8 @@ $string['showanswer_help'] = 'If enabled, the correct answer will be displayed t
     'end of the game if they fail to guess it within the maximum number of questions. If disabled, ' .
     'students will not see the answer.';
 $string['startattempt'] = 'Start your attempt';
-$string['startinstructions'] = 'Click the button below to begin your Twenty Questions game. Choose your strategy wisely and ask strategic questions to narrow down the possibilities.';
+$string['startinstructions'] = 'Click the button below to begin your Twenty Questions game. ' .
+    'Choose your strategy wisely and ask strategic questions to narrow down the possibilities.';
 $string['studentquestionprefix'] = 'Student question';
 $string['submitquestion'] = 'Submit question';
 $string['systemprompt'] = 'System prompt';
@@ -141,6 +146,7 @@ $string['tryanotherattempt'] = 'Try Another Secret';
 $string['viewmsg'] = 'You can view this activity.';
 $string['warmresultno'] = 'You\'re getting colder...';
 $string['warmresultyes'] = 'You\'re getting warmer!';
+$string['yesno:addinstance'] = 'Add a new Yes/No activity';
 $string['yesnoname'] = 'Activity name';
 $string['yesnoname_help'] = 'The name of this Twenty Questions activity';
 $string['yourquestion'] = 'Your question';

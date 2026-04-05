@@ -1,3 +1,25 @@
+{{!
+    @template mod_yesno/game_completion
+
+    Template for the game completion screen shown after a win or loss.
+
+    Example context (json):
+    {
+        "is_win": true,
+        "is_loss": false,
+        "game_won_title": "You won!",
+        "game_won_message": "You guessed correctly!",
+        "game_lost_title": "",
+        "game_lost_message": "",
+        "show_score": true,
+        "score_label": "Final score:",
+        "final_score": 85,
+        "try_another_url": "http://example.com/mod/yesno/view.php?tryanother=1",
+        "try_another_text": "Try Another Secret",
+        "finish_session_url": "http://example.com/mod/yesno/view.php?finish=1",
+        "finish_session_text": "Finish session"
+    }
+}}
 {{#is_win}}
 <div class="yesno-game-completion yesno-game-won" id="yesno-win-celebration">
     <div class="yesno-celebration-alert">

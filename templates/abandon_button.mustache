@@ -1,3 +1,15 @@
+{{!
+    @template mod_yesno/abandon_button
+
+    Template for the abandon attempt button.
+
+    Example context (json):
+    {
+        "abandon_button_text": "Abandon attempt",
+        "abandon_button_url": "http://example.com/mod/yesno/view.php?abandon=1",
+        "abandon_confirm_text_json": "\"Are you sure?\""
+    }
+}}
 {{#abandon_button_text}}
 <div class="yesno-abandon-button-container mt-3">
     <a href="{{abandon_button_url}}" class="btn btn-warning" id="yesno-abandon-button"

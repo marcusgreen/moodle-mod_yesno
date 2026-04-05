@@ -1,3 +1,15 @@
+{{!
+    @template mod_yesno/reset_button
+
+    Template for the teacher reset session button.
+
+    Example context (json):
+    {
+        "reset_button_text": "Reset Session",
+        "reset_button_url": "http://example.com/mod/yesno/view.php?resetuser=1",
+        "reset_confirm_text_json": "\"Are you sure you want to reset this student's session?\""
+    }
+}}
 {{#reset_button_text}}
 <div class="yesno-reset-button-container mt-3">
     <a href="{{reset_button_url}}" class="btn btn-danger" id="yesno-reset-button"

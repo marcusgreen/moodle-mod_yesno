@@ -1,3 +1,16 @@
+{{!
+    @template mod_yesno/exportimport_buttons
+
+    Template for the export and import secrets buttons.
+
+    Example context (json):
+    {
+        "has_instance": true,
+        "export_url": "http://example.com/mod/yesno/export.php?id=1",
+        "export_label": "Export secrets",
+        "import_label": "Import secrets"
+    }
+}}
 <div class="mb-2">
     {{#has_instance}}
     <a href="{{export_url}}" class="btn btn-outline-secondary btn-sm me-2">{{export_label}}</a>
