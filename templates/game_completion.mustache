@@ -14,6 +14,8 @@
         "show_score": true,
         "score_label": "Final score:",
         "final_score": 85,
+        "reveal_secret": "banana",
+        "reveal_secret_label": "The secret was:",
         "try_another_url": "http://example.com/mod/yesno/view.php?tryanother=1",
         "try_another_text": "Try Another Secret",
         "finish_session_url": "http://example.com/mod/yesno/view.php?finish=1",
@@ -43,6 +45,9 @@
     <div class="alert alert-info">
         <h3><i class="fa fa-info-circle"></i> {{game_lost_title}}</h3>
         <p>{{game_lost_message}}</p>
+        {{#reveal_secret}}
+        <p class="yesno-reveal-secret"><strong>{{reveal_secret_label}}</strong> {{reveal_secret}}</p>
+        {{/reveal_secret}}
     </div>
 </div>
 {{/is_loss}}

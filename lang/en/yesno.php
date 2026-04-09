@@ -121,6 +121,8 @@ $string['pluginname'] = 'Twenty questions';
 $string['reset'] = 'Reset Session';
 $string['resetconfirm'] = 'Are you sure you want to reset this student\'s session? This will delete all their attempts and history.';
 $string['resetsession'] = 'Reset Session';
+$string['revealsecretlabel'] = 'The secret was:';
+$string['revealsecretmsg'] = 'The secret was: {$a}';
 $string['score'] = 'Score';
 $string['secret'] = 'Secret';
 $string['secret_help'] = 'The secret that students need to guess in the Twenty Questions game.';
@@ -130,10 +132,9 @@ $string['secretsprompt_desc'] = 'Default prompt shown in the editing form for AI
 $string['secretspromptdefault'] = 'Create 10 secret/clue pairs on the topic of vegetables, ' .
     'half of the pairs should include a clue';
 $string['sessionreset'] = 'Session has been reset successfully.';
-$string['showanswer'] = 'Show correct answer when student does not guess it';
-$string['showanswer_help'] = 'If enabled, the correct answer will be displayed to the student at the ' .
-    'end of the game if they fail to guess it within the maximum number of questions. If disabled, ' .
-    'students will not see the answer.';
+$string['showanswer'] = 'Reveal secret when game ends';
+$string['showanswer_help'] = 'If enabled, the secret will be revealed to the student when the game ends ' .
+    '— either by running out of questions or by giving up. If disabled, students will not see the secret.';
 $string['startattempt'] = 'Start your attempt';
 $string['startinstructions'] = 'Click the button below to begin your Twenty Questions game. ' .
     'Choose your strategy wisely and ask strategic questions to narrow down the possibilities.';

@@ -82,6 +82,7 @@ function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool 
 
     // Checkboxes are absent from submitted data when unchecked.
     $data->amiwarm = !empty($data->amiwarm) ? 1 : 0;
+    $data->show_answer_on_loss = !empty($data->show_answer_on_loss) ? 1 : 0;
 
     // Update main yesno record.
     $result = $DB->update_record('yesno', $data);
@@ -180,10 +181,13 @@ function yesno_render_attempt_info(
 
     // Build game over message for loss.
     $gameoversecret = '';
-    if ($gamefinished && $gamestatus === 'loss' && $userattempt && $userattempt->secretid) {
+    if (
+        $gamefinished && $gamestatus === 'loss' && !empty($yesno->show_answer_on_loss)
+            && $userattempt && $userattempt->secretid
+    ) {
         $secret = $DB->get_field('yesno_secrets', 'secret', ['id' => $userattempt->secretid]);
         if ($secret) {
-            $gameoversecret = "\nYes the secret was: " . $secret;
+            $gameoversecret = get_string('revealsecretmsg', 'yesno', $secret);
         }
     }
 
@@ -474,6 +478,7 @@ function yesno_add_instance(stdClass $yesno): int {
 
     // Checkboxes are absent from submitted data when unchecked.
     $yesno->amiwarm = !empty($yesno->amiwarm) ? 1 : 0;
+    $yesno->show_answer_on_loss = !empty($yesno->show_answer_on_loss) ? 1 : 0;
 
     // Insert main yesno record.
     $yesnoid = $DB->insert_record('yesno', $yesno);
@@ -699,10 +704,19 @@ function yesno_start_attempt(stdClass $yesno, int $userid): stdClass {
  * @package mod_yesno
  */
 function yesno_render_game_completion(stdClass $yesno, stdClass $userattempt, context_module $modulecontext): string {
-    global $OUTPUT;
+    global $OUTPUT, $DB;
 
     $iswon = ($userattempt->status === 'win');
     $islost = ($userattempt->status === 'loss');
+
+    // Reveal the secret on loss if the setting is enabled.
+    $revealsecret = '';
+    if ($islost && !empty($yesno->show_answer_on_loss) && $userattempt->secretid) {
+        $secret = $DB->get_field('yesno_secrets', 'secret', ['id' => $userattempt->secretid]);
+        if ($secret) {
+            $revealsecret = $secret;
+        }
+    }
 
     // Build URLs with sesskey for security.
     $tryanotherurl = new moodle_url(
@@ -729,6 +743,8 @@ function yesno_render_game_completion(stdClass $yesno, stdClass $userattempt, co
         'try_another_text' => get_string('tryanotherattempt', 'yesno'),
         'finish_session_url' => $finishurl->out(false),
         'finish_session_text' => get_string('finishsession', 'yesno'),
+        'reveal_secret' => $revealsecret,
+        'reveal_secret_label' => get_string('revealsecretlabel', 'yesno'),
     ];
 
     return $OUTPUT->render_from_template('mod_yesno/game_completion', $data);

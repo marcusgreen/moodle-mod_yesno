@@ -57,6 +57,15 @@ if ($tryanother && confirm_sesskey()) {
 // Handle abandon attempt request - reset current attempt and start fresh with new secret.
 $abandon = optional_param('abandon', 0, PARAM_INT);
 if ($abandon && confirm_sesskey()) {
+    // Load current attempt to reveal secret if setting is enabled.
+    $abandonattempt = lib::load_attempt_state($yesno, $USER->id);
+    $abandonuserattempt = $abandonattempt['userattempt'];
+    if (!empty($yesno->show_answer_on_loss) && $abandonuserattempt && $abandonuserattempt->secretid) {
+        $abandonsecret = $DB->get_field('yesno_secrets', 'secret', ['id' => $abandonuserattempt->secretid]);
+        if ($abandonsecret) {
+            \core\notification::info(get_string('revealsecretmsg', 'yesno', $abandonsecret));
+        }
+    }
     yesno_reset_attempt($yesno, $USER->id);
     yesno_start_attempt($yesno, $USER->id);
     redirect(new moodle_url('/mod/yesno/view.php', ['id' => $cm->id]));
