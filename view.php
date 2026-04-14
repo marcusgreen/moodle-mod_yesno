@@ -66,6 +66,18 @@ if ($abandon && confirm_sesskey()) {
             \core\notification::info(get_string('revealsecretmsg', 'yesno', $abandonsecret));
         }
     }
+    // Log the attempt abandoned event before resetting.
+    if ($abandonuserattempt) {
+        $abandonevent = \mod_yesno\event\attempt_abandoned::create([
+            'objectid' => $abandonuserattempt->id,
+            'context' => $modulecontext,
+            'other' => [
+                'yesnoid' => $yesno->id,
+                'questioncount' => $abandonattempt['questioncount'],
+            ],
+        ]);
+        $abandonevent->trigger();
+    }
     yesno_reset_attempt($yesno, $USER->id);
     yesno_start_attempt($yesno, $USER->id);
     redirect(new moodle_url('/mod/yesno/view.php', ['id' => $cm->id]));

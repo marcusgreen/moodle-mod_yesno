@@ -59,6 +59,7 @@ $string['deletesecret'] = 'Delete this secret';
 $string['enteryourquestion'] = 'Enter your yes/no question here...';
 $string['errorgettingresponse'] = 'Error getting AI response';
 $string['errorparsingjson'] = 'Could not parse AI response as JSON. Try again or adjust the prompt.';
+$string['eventattemptabandoned'] = 'Attempt abandoned';
 $string['eventattemptcompleted'] = 'Attempt completed';
 $string['eventattemptstarted'] = 'Attempt started';
 $string['eventquestionsubmitted'] = 'Question submitted';
