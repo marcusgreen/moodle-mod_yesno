@@ -60,11 +60,6 @@ function yesno_update_instance(stdClass $data, ?moodleform $mform = null): bool 
     $data->timemodified = time();
     $data->id = $data->instance;
 
-    // Handle editor fields - they come as arrays with 'text' and 'format'.
-    if (isset($data->system_prompt) && is_array($data->system_prompt)) {
-        $data->system_prompt = $data->system_prompt['text'];
-    }
-
     // Extract secrets and clues before updating main record.
     $secrets = $data->secret ?? [];
     if (!is_array($secrets)) {
@@ -450,16 +445,6 @@ function yesno_add_instance(stdClass $yesno): int {
     global $DB;
 
     $yesno->timecreated = time();
-
-    // Handle editor fields - they come as arrays with 'text' and 'format'.
-    if (isset($yesno->system_prompt) && is_array($yesno->system_prompt)) {
-        $yesno->system_prompt = $yesno->system_prompt['text'];
-    }
-
-    // Set default prompt if not provided.
-    if (empty($yesno->system_prompt)) {
-        $yesno->system_prompt = get_config('mod_yesno', 'defaultprompt');
-    }
 
     // Extract secrets and clues before inserting main record.
     $secrets = $yesno->secret ?? [];

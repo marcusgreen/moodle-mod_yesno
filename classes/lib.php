@@ -96,8 +96,7 @@ class lib {
         } else {
             $targetword = '';
         }
-
-        $promptwithsecret = str_replace('{{target_word}}', $targetword, $yesno->system_prompt);
+        $promptwithsecret = str_replace('{{target_word}}', $targetword, get_config('mod_yesno', 'defaultprompt'));
         $questionprefix = get_string('studentquestionprefix', 'yesno');
         return $promptwithsecret . "\n\n" . $questionprefix . ": " . $studentquestion;
     }

@@ -42,7 +42,7 @@ class backup_yesno_activity_structure_step extends backup_activity_structure_ste
 
         // Define each element.
         $yesno = new backup_nested_element('yesno', ['id'], [
-            'name', 'intro', 'introformat', 'system_prompt',
+            'name', 'intro', 'introformat',
             'max_characters', 'max_grade', 'maxquestions', 'max_questions',
             'show_answer_on_loss', 'timecreated', 'timemodified',
         ]);

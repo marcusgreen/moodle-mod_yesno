@@ -268,5 +268,17 @@ function xmldb_yesno_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026032502, 'yesno');
     }
 
+    if ($oldversion < 2026041900) {
+        // Drop system_prompt column — prompt is now retrieved via get_config('mod_yesno', 'defaultprompt').
+        $table = new xmldb_table('yesno');
+        $field = new xmldb_field('system_prompt');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026041900, 'yesno');
+    }
+
     return true;
 }

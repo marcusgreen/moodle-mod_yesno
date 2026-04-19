@@ -11,7 +11,6 @@
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="false"/>
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
-        <FIELD NAME="system_prompt" TYPE="text" NOTNULL="false" COMMENT="The instructions for the LLM"/>
         <FIELD NAME="max_characters" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="200" COMMENT="Maximum characters allowed for student questions"/>
         <FIELD NAME="max_grade" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="100" COMMENT="Maximum grade for this activity"/>
         <FIELD NAME="maxquestions" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="20"/>
