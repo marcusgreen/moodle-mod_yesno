@@ -144,13 +144,9 @@ $PAGE->requires->css('/mod/yesno/styles.css');
 
 echo $OUTPUT->header();
 
-// Output the module name and description.
-echo $OUTPUT->heading(format_string($yesno->name));
-
-// Display the intro (description) if it exists.
-if (!empty($yesno->intro)) {
-    echo $OUTPUT->box(format_module_intro('yesno', $yesno, $cm->id), 'generalbox', 'intro');
-}
+// Note: the activity name and intro/description are rendered automatically by the
+// core activity header inside $OUTPUT->header(), so they are not echoed here to
+// avoid duplicating the name, images and text.
 
 // Check if user can manage the activity.
 $canmanage = has_capability('mod/yesno:manage', $modulecontext);
